@@ -1,0 +1,21 @@
+/* Tokens de diseño, sacados de docs/referencia/maqueta.html.
+   Paleta cerrada: amarillo, negro y blanco. Sin modo oscuro. */
+:root {
+  --amarillo: #FFDD00;
+  --negro: #000000;
+  --blanco: #FFFFFF;
+
+  /* Texto secundario: transparencias de negro y blanco */
+  --suave: rgba(0, 0, 0, .62);
+  --suave-claro: rgba(255, 255, 255, .72);
+  --linea-clara: rgba(255, 255, 255, .25);
+
+  --fuente: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --radio: 22px;
+  --ease: cubic-bezier(.2, .8, .2, 1);
+}
+
+.contenedor {
+  width: min(1180px, 100% - 2rem);
+  margin-inline: auto;
+}

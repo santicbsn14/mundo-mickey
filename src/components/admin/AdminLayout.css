@@ -1,0 +1,60 @@
+.admin-barra {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  padding-top: env(safe-area-inset-top, 0px);
+  background: var(--negro);
+  color: var(--blanco);
+}
+
+.admin-barra__fila {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: .25rem 1.5rem;
+  padding-block: .6rem;
+}
+
+.admin-barra__titulo {
+  color: var(--amarillo);
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+/* Mobile: los links en una fila con scroll horizontal dentro de la barra */
+.admin-barra__nav {
+  display: flex;
+  gap: .4rem;
+  min-width: 0;
+  max-width: 100%;
+  overflow-x: auto;
+  padding: 4px; /* deja lugar al outline de foco */
+  margin: -4px;
+  scrollbar-width: none;
+}
+.admin-barra__nav::-webkit-scrollbar { display: none; }
+
+.admin-barra__nav a {
+  flex-shrink: 0;
+  padding: .35rem .9rem;
+  border: 2px solid var(--linea-clara);
+  border-radius: 999px;
+  color: var(--blanco);
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.admin-barra__nav a:hover { border-color: var(--blanco); }
+.admin-barra__nav a.active {
+  border-color: var(--amarillo);
+  background: var(--amarillo);
+  color: var(--negro);
+  font-weight: 800;
+}
+
+@media (max-width: 599px) {
+  .admin-barra__nav { flex-basis: 100%; }
+}
+
+.admin-main { padding-block: 2rem 3rem; }
