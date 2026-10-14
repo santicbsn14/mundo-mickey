@@ -199,7 +199,7 @@ mundo-mickey/
 │   ├── DEPLOY.md
 │   ├── avances/
 │   └── referencia/ (maqueta.html, logo.png)
-├── scripts/              (seed de productos de prueba, en el brief 02)
+├── scripts/              (seed.js: carga productos de prueba; limpiar-seed.js: los borra)
 ├── index.html
 ├── vite.config.ts
 ├── vercel.json

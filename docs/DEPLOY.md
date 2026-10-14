@@ -34,17 +34,33 @@ El proyecto tiene que estar en su propio repo de GitHub, con la carpeta `mundo-m
    |---|---|
    | `MONGODB_URI` | la URI del paso anterior |
    | `SITE_URL` | la URL del proyecto, por ejemplo `https://mundo-mickey.vercel.app` (sin `/` al final) |
-   | `VITE_SANITY_PROJECT_ID` | vacía por ahora (se completa en el brief 02) |
+   | `VITE_SANITY_PROJECT_ID` | `de0zicdv` |
    | `VITE_SANITY_DATASET` | `production` |
+   | `SANITY_PROJECT_ID` | `de0zicdv` |
+   | `SANITY_DATASET` | `production` |
+   | `SANITY_WRITE_TOKEN` | el mismo valor de tu `.env` local (token Editor `mundo-mickey-api`) |
 4. **Deploy.** Si cambiás variables después, hacé **Redeploy**: no se aplican a deploys anteriores.
 
 > **Plan:** Hobby es solo para uso personal y **no comercial**. Para probar alcanza, pero para la tienda en vivo corresponde **Pro**.
+
+## Sanity
+
+- **Proyecto:** "Mundo Mickey", Project ID **`de0zicdv`**, en la organización `santicbsn14`. Panel: https://www.sanity.io/manage/project/de0zicdv
+- **Dataset `production` público:** el front lo lee sin token, por el CDN. No se usa Sanity Studio: todo se carga desde `/admin`.
+- **CORS:** `http://localhost:5173` y `http://localhost:5174`, sin credentials (más el `http://localhost:3333` que Sanity crea por defecto).
+- **Token:** `mundo-mickey-api`, rol Editor. Va solo en `SANITY_WRITE_TOKEN` (`.env` y Vercel). Si se filtra, revocalo en el panel (API → Tokens) y creá otro.
+- **Brief 12 — dominio de producción:** hay que sumarlo a los CORS (sin credentials, porque el front solo lee). Desde la raíz del repo:
+  ```bash
+  npx sanity@latest cors add https://<dominio> --no-credentials --project-id de0zicdv
+  npx sanity@latest cors list --project-id de0zicdv
+  ```
+  Si se sigue usando la URL `*.vercel.app`, agregala también.
 
 ## 3. Verificar
 
 1. Abrí `https://<proyecto>.vercel.app/api/health`. Tiene que responder:
    ```json
-   { "ok": true, "db": "conectada", "entorno": "production" }
+   { "ok": true, "db": "conectada", "sanity": "ok", "entorno": "production" }
    ```
 2. Abrí `https://<proyecto>.vercel.app/checkout` y **recargá la página** (F5). Tiene que seguir mostrando "Checkout": eso confirma que el rewrite a `/index.html` funciona.
 3. Abrí `https://<proyecto>.vercel.app/admin` y fijate que se vea la barra negra del panel.
@@ -56,5 +72,7 @@ El proyecto tiene que estar en su propio repo de GitHub, con la carpeta `mundo-m
 | 404 en `/api/health` | Que `vercel.json` esté en la raíz y tenga el rewrite `/api/(.*)` → `/api`, y que exista `api/index.js`. |
 | `"db": "desconectada"` | La `MONGODB_URI` (usuario, contraseña codificada, nombre de base) y que Network Access de Atlas tenga `0.0.0.0/0`. El campo `error` de la respuesta dice el motivo. |
 | `Falta la variable de entorno MONGODB_URI` | La variable no está cargada para ese entorno (Production o Preview), o no se hizo Redeploy después de cargarla. |
+| `"sanity": "error"` | El motivo está en `errores.sanity`. Revisá `SANITY_PROJECT_ID` y `SANITY_DATASET` en Vercel. |
+| El front no carga productos (error de CORS en la consola) | Falta el dominio en los CORS de Sanity (ver la sección Sanity). |
 | Una ruta del front da 404 al recargar | El rewrite `/(.*)` → `/index.html` en `vercel.json`. |
 | Logs | Vercel → proyecto → **Logs**. En Hobby duran 1 hora. |
