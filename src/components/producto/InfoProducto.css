@@ -1,0 +1,76 @@
+.info {
+  display: grid;
+  justify-items: start;
+  gap: .75rem;
+}
+
+.info__badge {
+  padding: .15rem .8rem;
+  border-radius: 999px;
+  background: var(--negro);
+  color: var(--amarillo);
+  font-size: .85rem;
+  font-weight: 800;
+}
+
+.info__nombre {
+  font-weight: 800;
+  font-size: clamp(2rem, 5vw, 3.2rem);
+  line-height: 1;
+  letter-spacing: -.03em;
+}
+
+.info__precio {
+  font-weight: 800;
+  font-size: clamp(1.9rem, 4vw, 2.5rem);
+  line-height: 1.1;
+  letter-spacing: -.02em;
+}
+
+.info__descripcion {
+  max-width: 48ch;
+  color: var(--suave);
+}
+
+/* Pocas unidades: rótulo amarillo con borde */
+.info__quedan {
+  padding: .3rem .9rem;
+  border: 2px solid var(--negro);
+  border-radius: 999px;
+  background: var(--amarillo);
+  font-weight: 800;
+  font-size: .95rem;
+}
+
+/* Mismo look que "Sin stock" en la card */
+.info__sin-stock {
+  padding: .35rem .9rem;
+  border: 2px dashed var(--suave);
+  border-radius: 999px;
+  color: var(--suave);
+  font-weight: 800;
+  font-size: .95rem;
+}
+
+.info__acciones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .75rem;
+  margin-top: .5rem;
+}
+
+.info__whatsapp {
+  display: inline-flex;
+  align-items: center;
+  padding: .7rem 1.4rem;
+  border: 2px solid var(--negro);
+  border-radius: 999px;
+  background: var(--blanco);
+  color: var(--negro);
+  font-weight: 800;
+  text-decoration: none;
+  transition: background .2s;
+}
+@media (hover: hover) {
+  .info__whatsapp:hover { background: var(--amarillo); }
+}

@@ -22,6 +22,10 @@
 }
 @keyframes marquesina-deslizar { to { transform: translateX(-50%); } }
 
+/* Cargando: la misma línea (con su ★) pero quieta e invisible, solo para ocupar la altura */
+.marquesina--cargando .marquesina__pista { animation: none; }
+.marquesina--cargando .marquesina__pista span { color: transparent; }
+
 @media (prefers-reduced-motion: reduce) {
   .marquesina__pista { animation: none; }
 }

@@ -13,9 +13,9 @@ export default function Header() {
         </Link>
 
         <nav className="header__nav" aria-label="Secciones">
-          <a href="/#productos">Productos</a>
-          <a href="/#como-comprar">Cómo comprar</a>
-          <a href="/#contacto">Contacto</a>
+          <Link to="/#productos">Productos</Link>
+          <Link to="/#como-comprar">Cómo comprar</Link>
+          <Link to="/#contacto">Contacto</Link>
         </nav>
 
         <button type="button" className="btn-carrito" aria-label={`Abrir carrito, ${cantidad} productos`}>

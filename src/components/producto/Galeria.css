@@ -1,0 +1,73 @@
+.galeria {
+  display: grid;
+  gap: .75rem;
+  min-width: 0;
+}
+
+/* Marco: borde, radio y fondo amarillo (visible detrás de imágenes transparentes) */
+.galeria__marco {
+  overflow: hidden;
+  border: 2px solid var(--negro);
+  border-radius: var(--radio);
+  background: var(--amarillo);
+}
+.galeria__marco--vacio { aspect-ratio: 1; }
+
+/* Pista horizontal: una foto por "página", con scroll-snap y sin barra */
+.galeria__pista {
+  display: flex;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+}
+.galeria__pista::-webkit-scrollbar { display: none; }
+/* El marco recorta lo de afuera (overflow: hidden): el contorno de foco va hacia adentro */
+.galeria__pista:focus-visible {
+  outline-offset: -6px;
+  border-radius: calc(var(--radio) - 2px);
+}
+
+.galeria__foto {
+  flex: 0 0 100%;
+  aspect-ratio: 1;
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+}
+.galeria__foto img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  user-select: none;
+}
+
+/* Miniaturas */
+.galeria__miniaturas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .5rem;
+}
+.galeria__miniatura {
+  width: 4rem;
+  height: 4rem;
+  padding: .2rem;
+  overflow: hidden;
+  border: 2px solid var(--negro);
+  border-radius: 12px;
+  background: var(--blanco);
+  transition: background .2s;
+}
+.galeria__miniatura img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 8px;
+}
+/* Activa: fondo amarillo y un borde más grueso (por sombra interna, así no cambia el tamaño) */
+.galeria__miniatura[aria-current="true"] {
+  background: var(--amarillo);
+  box-shadow: inset 0 0 0 2px var(--negro);
+}
+@media (hover: hover) {
+  .galeria__miniatura:not([aria-current="true"]):hover { background: rgba(0, 0, 0, .06); }
+}

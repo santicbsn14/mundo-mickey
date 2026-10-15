@@ -1,0 +1,35 @@
+.entrega {
+  padding: 1.1rem 1.25rem;
+  border: 2px solid var(--negro);
+  border-radius: var(--radio);
+}
+
+.entrega__titulo {
+  margin-bottom: .5rem;
+  font-weight: 800;
+  font-size: 1.15rem;
+  letter-spacing: -.01em;
+}
+
+.entrega__lista {
+  padding: 0;
+  list-style: none;
+}
+.entrega__lista li { padding-block: .65rem; }
+.entrega__lista li + li { border-top: 2px solid rgba(0, 0, 0, .1); }
+.entrega__lista li:last-child { padding-bottom: 0; }
+
+.entrega__fila {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: .25rem 1rem;
+}
+.entrega__costo { font-weight: 800; }
+
+.entrega__lista p {
+  margin-top: .15rem;
+  color: var(--suave);
+  font-size: .95rem;
+  line-height: 1.4;
+}

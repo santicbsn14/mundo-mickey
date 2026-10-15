@@ -1,0 +1,21 @@
+.otros { padding-block: 4rem 5rem; }
+
+.otros__titulo {
+  margin-bottom: 1.5rem;
+  font-weight: 800;
+  font-size: clamp(1.9rem, 5vw, 2.8rem);
+  line-height: 1;
+  letter-spacing: -.03em;
+}
+
+.otros__grilla {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+@media (min-width: 900px) {
+  .otros__grilla {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 1.5rem;
+  }
+}

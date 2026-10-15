@@ -1,0 +1,133 @@
+.producto { padding-top: 1.25rem; }
+
+.producto__volver {
+  display: inline-block;
+  margin-bottom: 1.25rem;
+  border-radius: 4px;
+  color: var(--negro);
+  font-weight: 600;
+  text-decoration: none;
+}
+@media (hover: hover) {
+  .producto__volver:hover { text-decoration: underline; text-underline-offset: 3px; }
+}
+
+/* Mobile: galería, info y entrega, una debajo de la otra.
+   Desde 900px, dos columnas: galería y entrega a la izquierda, y la info sola a la derecha,
+   sticky. La entrega va a la izquierda porque, junto a la info, la columna quedaba más alta
+   que la galería y el sticky no llegaba a engancharse. */
+.producto__grid {
+  display: grid;
+  grid-template-areas: "galeria" "info" "entrega";
+  gap: 1.75rem;
+}
+.producto__grid > * { min-width: 0; }
+.producto__galeria { grid-area: galeria; }
+.producto__info { grid-area: info; }
+.producto__entrega { grid-area: entrega; }
+
+@media (min-width: 900px) {
+  .producto__grid {
+    grid-template-columns: 55fr 45fr;
+    grid-template-areas: "galeria info" "entrega info";
+    grid-template-rows: auto 1fr;
+    gap: 1.5rem 3rem;
+  }
+  .producto__info {
+    position: sticky;
+    /* Debajo del header sticky (~72px), con aire */
+    top: calc(env(safe-area-inset-top, 0px) + 96px);
+    align-self: start;
+  }
+}
+
+/* Botón negro con texto amarillo, como el "Reintentar" del catálogo */
+.producto__boton {
+  display: inline-block;
+  padding: .65rem 1.4rem;
+  border: 0;
+  border-radius: 999px;
+  background: var(--negro);
+  color: var(--amarillo);
+  font-weight: 800;
+  text-decoration: none;
+}
+
+/* Error: mismo recuadro que el del catálogo */
+.producto__aviso {
+  display: grid;
+  justify-items: start;
+  gap: 1rem;
+  margin-bottom: 4rem;
+  padding: 2rem 1.5rem;
+  border: 2px dashed var(--negro);
+  border-radius: var(--radio);
+}
+.producto__aviso-texto {
+  font-weight: 600;
+  font-size: 1.15rem;
+}
+
+/* No encontrado */
+.producto__no-encontrado {
+  display: grid;
+  justify-items: start;
+  gap: 1rem;
+  padding-block: 2rem 5rem;
+}
+.producto__no-encontrado h1 {
+  max-width: 18ch;
+  font-weight: 800;
+  font-size: clamp(2rem, 6vw, 3.2rem);
+  line-height: 1;
+  letter-spacing: -.03em;
+}
+.producto__no-encontrado p {
+  max-width: 48ch;
+  color: var(--suave);
+}
+
+/* Esqueleto */
+.producto__esqueleto { margin-bottom: 4rem; }
+.esqueleto__foto {
+  aspect-ratio: 1;
+  border: 2px solid var(--negro);
+  border-radius: var(--radio);
+  background: rgba(0, 0, 0, .06);
+}
+.esqueleto__info {
+  display: grid;
+  align-content: start;
+  gap: .9rem;
+}
+.esqueleto__barra {
+  display: block;
+  width: 90%;
+  height: 1rem;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, .1);
+}
+.esqueleto__barra--badge { width: 7rem; height: 1.5rem; }
+.esqueleto__barra--titulo { width: 80%; height: 2.6rem; border-radius: 12px; }
+.esqueleto__barra--precio { width: 40%; height: 2.2rem; border-radius: 12px; }
+.esqueleto__barra--corta { width: 60%; }
+.esqueleto__barra--entrega { width: 100%; height: 12rem; border-radius: var(--radio); }
+
+.esqueleto__foto,
+.esqueleto__barra { animation: producto-pulso 1.4s ease-in-out infinite; }
+@keyframes producto-pulso { 50% { opacity: .45; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .esqueleto__foto,
+  .esqueleto__barra { animation: none; }
+}
+
+/* Solo para lectores de pantalla */
+.producto__sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}

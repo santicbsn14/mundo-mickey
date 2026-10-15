@@ -6,11 +6,13 @@ import ComoComprar from '../components/home/ComoComprar.tsx'
 import Grilla from '../components/catalogo/Grilla.tsx'
 
 export default function Home() {
-  const { hash } = useLocation()
+  const { hash, key } = useLocation()
 
   // Los links del header son /#productos, /#como-comprar y /#contacto. Cuando se llega desde otra
   // página, la sección todavía no existe en el momento en que el navegador busca el ancla, así que
   // se baja acá. El scroll-padding-top de base.css evita que la tape el header sticky.
+  // Depende también de `key`: con `Link`, tocar otra vez el mismo link (mismo hash) es una
+  // navegación nueva y tiene que volver a bajar.
   useEffect(() => {
     if (!hash) return
     const id = decodeURIComponent(hash.slice(1))
@@ -33,7 +35,7 @@ export default function Home() {
       clearTimeout(limite)
       cortar()
     }
-  }, [hash])
+  }, [hash, key])
 
   return (
     <>

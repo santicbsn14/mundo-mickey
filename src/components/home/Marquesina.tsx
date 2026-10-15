@@ -8,7 +8,20 @@ const MINIMO = 8
 const SEGUNDOS_POR_TEXTO = 5.2
 
 export default function Marquesina() {
-  const { configuracion } = useConfiguracion()
+  const { configuracion, cargando } = useConfiguracion()
+
+  // Mientras carga, la banda vacía con su altura final: un texto invisible con las mismas
+  // métricas que los reales, así la página no se mueve cuando llegan.
+  if (cargando) {
+    return (
+      <div className="marquesina marquesina--cargando" aria-hidden="true">
+        <div className="marquesina__pista">
+          <span>&nbsp;</span>
+        </div>
+      </div>
+    )
+  }
+
   const textos = (configuracion?.marquesina ?? []).map((t) => t.trim()).filter(Boolean)
   if (textos.length === 0) return null
 
