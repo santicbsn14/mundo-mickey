@@ -8,20 +8,43 @@ El proyecto tiene que estar en su propio repo de GitHub, con la carpeta `mundo-m
 
 ## 1. MongoDB Atlas
 
-1. Entrá a [cloud.mongodb.com](https://cloud.mongodb.com) y creá un proyecto "Mundo Mickey".
-2. **Create cluster** → plan **M0 (Free)** → proveedor **AWS**, región **N. Virginia (us-east-1)**. Es la misma región que usan por defecto las funciones de Vercel.
-3. **Database Access** → **Add New Database User**:
-   - método: contraseña;
-   - usuario: `mundo-mickey-app`;
-   - contraseña generada (guardala, sin caracteres raros si podés);
-   - rol: **Read and write to any database**.
-4. **Network Access** → **Add IP Address** → **Allow access from anywhere** (`0.0.0.0/0`). Hace falta porque las funciones de Vercel no tienen IP fija.
-5. **Connect** → **Drivers** → copiá la URI y agregale el nombre de la base `mundo-mickey` antes del `?`:
+### Desarrollo (provisorio)
+
+Hoy la base de desarrollo es **provisoria**: la base `mundo-mickey` vive en un cluster que Santiago ya tenía en **otro proyecto de Atlas**, compartido con otros datos. Sirve para desarrollar en local, pero **no se usa en producción**. La URI está solo en el `.env` local.
+
+- Los modelos y colecciones llegan desde el brief 08, así que en la base todavía no hay colecciones. Si algún día se pasan datos de desarrollo a producción, se exportan de esa base (`mongodump --db mundo-mickey`) y no del cluster entero.
+- Si `/api/health` da `"db": "desconectada"` en local, revisá que el Network Access de ese otro proyecto deje entrar tu IP.
+
+### Producción (brief 12): proyecto propio de la tienda
+
+Antes del deploy hay que crear un proyecto de Atlas **propio de la tienda**, sin reutilizar el cluster de desarrollo. Así los datos de la tienda quedan separados, y el tier gratis permite un solo M0 por proyecto. Todo se hace desde la web, en [cloud.mongodb.com](https://cloud.mongodb.com):
+
+1. **Proyecto:** en el selector de proyectos (arriba a la izquierda), **New Project** → nombre **"Mundo Mickey"** → **Create Project**.
+2. **Cluster:** **Create** (o **Build a Database**):
+   - plan **M0 (Free)**. Nada pago;
+   - proveedor **AWS**, región **N. Virginia (us-east-1)**, la misma que usan por defecto las funciones de Vercel;
+   - nombre `mundo-mickey`.
+
+   Esperá a que el cluster figure como activo (tarda unos minutos).
+3. **Usuario de la base:** **Security → Database Access → Add New Database User**:
+   - método: **Password**;
+   - usuario: `mundo-mickey-api`;
+   - contraseña: **Autogenerate Secure Password**. Copiala en ese momento: después no se vuelve a ver. Si la generás a mano, que sea larga (32 caracteres) y solo con letras y números, así no hay que codificarla en la URI;
+   - permisos: **Specific Privileges** (no uses "Atlas admin" ni "Read and write to any database") → **Add Specific Privilege** → rol `readWrite`, base `mundo-mickey` y colección vacía (toda la base);
+   - **Add User**.
+4. **Acceso de red:** **Security → Network Access → Add IP Address** → **Allow access from anywhere** (`0.0.0.0/0`), con el comentario "Vercel (IPs dinámicas)". Hace falta porque las funciones de Vercel no tienen IP fija. La seguridad queda en el usuario con permisos mínimos y la contraseña larga.
+5. **Connection string:** en el cluster, **Connect → Drivers** → copiá la URI y completala:
+   - reemplazá `<db_password>` por la contraseña;
+   - poné el nombre de la base `mundo-mickey` después de `mongodb.net/` y antes del `?`;
+   - dejá `retryWrites=true&w=majority&appName=mundo-mickey` en los parámetros.
+
+   Queda con este formato (valores de ejemplo):
    ```
-   mongodb+srv://mundo-mickey-app:<CONTRASEÑA>@<cluster>.xxxxx.mongodb.net/mundo-mickey?retryWrites=true&w=majority
+   mongodb+srv://mundo-mickey-api:<CONTRASEÑA>@mundo-mickey.xxxxx.mongodb.net/mundo-mickey?retryWrites=true&w=majority&appName=mundo-mickey
    ```
    Si la contraseña tiene caracteres como `@`, `:` o `/`, codificalos (por ejemplo `@` → `%40`).
-6. Pegá esa URI en tu `.env` local como `MONGODB_URI` y probá `npm run dev` → `http://localhost:5173/api/health` tiene que dar `"db": "conectada"`.
+6. **Dónde va:** la URI va en la variable `MONGODB_URI` de Vercel (ver paso 2), marcando **Production** y **Preview**. No la pegues en ningún archivo del repo.
+7. **Probar antes del deploy (opcional):** poné esa URI en tu `.env` local, corré `npm run dev` y abrí `/api/health`. Tiene que dar `"db": "conectada"`, y en la consola tiene que decir `MongoDB conectada (base: mundo-mickey)`. Después volvé a la URI de desarrollo.
 
 ## 2. Vercel
 
@@ -32,7 +55,7 @@ El proyecto tiene que estar en su propio repo de GitHub, con la carpeta `mundo-m
 3. **Environment Variables** — cargá cada una marcando **Production** y **Preview**:
    | Variable | Valor |
    |---|---|
-   | `MONGODB_URI` | la URI del paso anterior |
+   | `MONGODB_URI` | la URI del proyecto de Atlas propio (paso 1, "Producción"). No la de desarrollo |
    | `SITE_URL` | la URL del proyecto, por ejemplo `https://mundo-mickey.vercel.app` (sin `/` al final) |
    | `VITE_SANITY_PROJECT_ID` | `de0zicdv` |
    | `VITE_SANITY_DATASET` | `production` |
@@ -47,7 +70,7 @@ El proyecto tiene que estar en su propio repo de GitHub, con la carpeta `mundo-m
 
 - **Proyecto:** "Mundo Mickey", Project ID **`de0zicdv`**, en la organización `santicbsn14`. Panel: https://www.sanity.io/manage/project/de0zicdv
 - **Dataset `production` público:** el front lo lee sin token, por el CDN. No se usa Sanity Studio: todo se carga desde `/admin`.
-- **CORS:** `http://localhost:5173` y `http://localhost:5174`, sin credentials (más el `http://localhost:3333` que Sanity crea por defecto).
+- **CORS:** solo `http://localhost:5173` y `http://localhost:5174`, sin credentials. El `http://localhost:3333` que Sanity crea por defecto (el de Studio) se borró en el brief 02b.
 - **Token:** `mundo-mickey-api`, rol Editor. Va solo en `SANITY_WRITE_TOKEN` (`.env` y Vercel). Si se filtra, revocalo en el panel (API → Tokens) y creá otro.
 - **Brief 12 — dominio de producción:** hay que sumarlo a los CORS (sin credentials, porque el front solo lee). Desde la raíz del repo:
   ```bash
