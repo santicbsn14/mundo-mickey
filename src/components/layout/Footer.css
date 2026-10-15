@@ -25,4 +25,9 @@
   font-weight: 800;
 }
 .footer p { color: var(--suave); }
-.footer a { color: inherit; }
+.footer p + p { margin-top: .2rem; }
+.footer a {
+  color: var(--negro);
+  font-weight: 600;
+  text-underline-offset: 3px;
+}

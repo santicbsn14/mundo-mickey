@@ -1,0 +1,143 @@
+.card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border: 2px solid var(--negro);
+  border-radius: var(--radio);
+  background: var(--blanco);
+  transition: transform .3s var(--ease), box-shadow .3s var(--ease);
+}
+
+/* La destacada ocupa 2 columnas (y 2 filas desde 900px) */
+.card--destacada { grid-column: span 2; }
+@media (min-width: 900px) {
+  .card--destacada { grid-row: span 2; }
+}
+
+/* Mobile: si la última card queda sola en su fila, ocupa las 2 columnas (lo calcula la Grilla) */
+@media (max-width: 899.98px) {
+  .card--ancha-mobile { grid-column: span 2; }
+  .card--ancha-mobile .card__foto { aspect-ratio: 16 / 10; }
+}
+
+/* Foto: fondo amarillo, visible detrás de imágenes transparentes */
+.card__foto {
+  position: relative;
+  flex: 1;
+  min-height: 170px;
+  aspect-ratio: 1;
+  overflow: hidden;
+  border-bottom: 2px solid var(--negro);
+  background: var(--amarillo);
+}
+.card--destacada .card__foto { aspect-ratio: 16 / 10; }
+@media (min-width: 900px) {
+  .card--destacada .card__foto { aspect-ratio: auto; }
+}
+
+.card__foto-link {
+  position: absolute;
+  inset: 0;
+}
+.card__foto img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform .4s var(--ease);
+}
+
+.card__badge {
+  position: absolute;
+  top: .75rem;
+  left: .75rem;
+  z-index: 1;
+  padding: .15rem .7rem;
+  border-radius: 999px;
+  background: var(--negro);
+  color: var(--amarillo);
+  font-size: .8rem;
+  font-weight: 800;
+  pointer-events: none;
+}
+
+.card__cuerpo {
+  display: grid;
+  gap: .25rem;
+  padding: .9rem 1rem 1rem;
+}
+
+.card__nombre {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 800;
+  line-height: 1.2;
+  letter-spacing: -.01em;
+}
+.card--destacada .card__nombre { font-size: clamp(1.3rem, 3vw, 1.9rem); }
+.card__nombre a {
+  color: inherit;
+  text-decoration: none;
+  border-radius: 4px;
+}
+
+.card__detalle {
+  margin: 0;
+  color: var(--suave);
+  font-size: .92rem;
+  line-height: 1.35;
+}
+
+.card__pie {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: .5rem;
+  margin-top: .5rem;
+}
+.card__precio {
+  font-weight: 800;
+  font-size: 1.35rem;
+  letter-spacing: -.02em;
+}
+.card--destacada .card__precio { font-size: 1.8rem; }
+
+.card__agregar {
+  display: inline-flex;
+  align-items: center;
+  gap: .4rem;
+  padding: .5rem 1rem;
+  border: 0;
+  border-radius: 999px;
+  background: var(--negro);
+  color: var(--blanco);
+  font-weight: 800;
+  font-size: .95rem;
+  transition: background .2s, color .2s, transform .15s;
+}
+.card__agregar:active { transform: scale(.94); }
+
+/* Mismo look que el `.agregar:disabled` de la maqueta */
+.card__sin-stock {
+  padding: .35rem .9rem;
+  border: 2px dashed var(--suave);
+  border-radius: 999px;
+  color: var(--suave);
+  font-weight: 800;
+  font-size: .95rem;
+}
+
+/* Hover solo con mouse, así en el celular no queda "pegado" al tocar */
+@media (hover: hover) {
+  .card:hover { box-shadow: 0 8px 0 var(--negro); }
+  .card__nombre a:hover { text-decoration: underline; text-underline-offset: 3px; }
+  .card__agregar:hover {
+    background: var(--amarillo);
+    color: var(--negro);
+  }
+}
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .card:hover { transform: translateY(-6px); }
+  .card:hover .card__foto img { transform: scale(1.06); }
+}

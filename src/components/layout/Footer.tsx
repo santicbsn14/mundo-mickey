@@ -1,7 +1,14 @@
+import { useConfiguracion } from '../../hooks/useConfiguracion.ts'
 import './Footer.css'
 
-// Datos de ejemplo: en el brief 07 salen de la configuración de Sanity
 export default function Footer() {
+  const { configuracion } = useConfiguracion()
+
+  const direccion = configuracion?.direccion?.trim()
+  const horarios = configuracion?.horarios?.trim()
+  const whatsapp = configuracion?.whatsapp?.replace(/\D/g, '')
+  const instagram = configuracion?.instagram?.trim().replace(/^@/, '')
+
   return (
     <footer className="footer" id="contacto">
       <div className="contenedor footer__grid">
@@ -10,19 +17,26 @@ export default function Footer() {
         </div>
         <div>
           <h3>Visitanos</h3>
-          <p>
-            Dirección del local
-            <br />
-            San Nicolás de los Arroyos
-          </p>
+          {direccion && <p>{direccion}</p>}
+          {horarios && <p>{horarios}</p>}
         </div>
         <div>
           <h3>Contacto</h3>
-          <p>
-            WhatsApp 336 000-0000
-            <br />
-            Instagram <a href="#">@mundomickey</a>
-          </p>
+          {whatsapp && (
+            <p>
+              <a href={`https://wa.me/${whatsapp}`} target="_blank" rel="noopener noreferrer">
+                Escribinos por WhatsApp
+              </a>
+            </p>
+          )}
+          {instagram && (
+            <p>
+              Instagram{' '}
+              <a href={`https://instagram.com/${instagram}`} target="_blank" rel="noopener noreferrer">
+                @{instagram}
+              </a>
+            </p>
+          )}
         </div>
       </div>
     </footer>

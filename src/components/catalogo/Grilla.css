@@ -1,0 +1,87 @@
+.productos { padding-block: 4rem 5rem; }
+
+.productos__cabecera {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: end;
+  gap: .75rem 2rem;
+  margin-bottom: 2rem;
+}
+.productos__titulo {
+  margin: 0;
+  font-weight: 800;
+  font-size: clamp(2.2rem, 6vw, 3.6rem);
+  line-height: 1;
+  letter-spacing: -.03em;
+}
+.productos__bajada {
+  max-width: 36ch;
+  margin: 0;
+  color: var(--suave);
+}
+
+.grilla {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+@media (min-width: 900px) {
+  .grilla {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1.5rem;
+  }
+}
+
+/* Error y vacío */
+.productos__aviso {
+  display: grid;
+  justify-items: start;
+  gap: 1rem;
+  padding: 2rem 1.5rem;
+  border: 2px dashed var(--negro);
+  border-radius: var(--radio);
+  font-weight: 600;
+  font-size: 1.15rem;
+}
+.productos__reintentar {
+  padding: .65rem 1.4rem;
+  border: 0;
+  border-radius: 999px;
+  background: var(--negro);
+  color: var(--amarillo);
+  font-weight: 800;
+}
+
+/* Solo para lectores de pantalla */
+.productos__sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* Esqueleto: misma card, sin contenido, con un pulso suave y sin hover */
+.card--esqueleto { pointer-events: none; }
+.card--esqueleto .card__foto { background: rgba(0, 0, 0, .06); }
+.card--esqueleto .card__cuerpo { gap: .5rem; }
+.esqueleto__linea {
+  display: block;
+  width: 80%;
+  height: .95rem;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, .1);
+}
+.esqueleto__linea--corta { width: 55%; height: .75rem; }
+.esqueleto__linea--precio { width: 35%; height: 1.3rem; margin-top: .4rem; }
+
+.card--esqueleto .card__foto,
+.esqueleto__linea { animation: esqueleto-pulso 1.4s ease-in-out infinite; }
+@keyframes esqueleto-pulso { 50% { opacity: .45; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .card--esqueleto .card__foto,
+  .esqueleto__linea { animation: none; }
+}

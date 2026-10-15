@@ -188,6 +188,7 @@ mundo-mickey/
 │   ├── pages/
 │   │   └── admin/
 │   ├── context/      (CarritoContext, AuthAdminContext)
+│   ├── hooks/        (useProductos, useConfiguracion)
 │   ├── lib/          (api.ts, sanity.ts, formato.ts, imagenes.ts)
 │   ├── types/
 │   ├── styles/       (tokens.css, base.css)

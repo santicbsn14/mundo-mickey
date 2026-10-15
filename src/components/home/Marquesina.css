@@ -1,0 +1,27 @@
+.marquesina {
+  overflow: hidden;
+  border-block: 2px solid var(--negro);
+  background: var(--amarillo);
+  color: var(--negro);
+}
+
+.marquesina__pista {
+  display: flex;
+  width: max-content;
+  animation: marquesina-deslizar var(--marquesina-duracion, 26s) linear infinite;
+}
+.marquesina__pista span {
+  padding: .85rem 1.25rem;
+  font-weight: 800;
+  font-size: 1.15rem;
+  white-space: nowrap;
+}
+.marquesina__pista span::after {
+  content: "★";
+  margin-left: 2.5rem;
+}
+@keyframes marquesina-deslizar { to { transform: translateX(-50%); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .marquesina__pista { animation: none; }
+}

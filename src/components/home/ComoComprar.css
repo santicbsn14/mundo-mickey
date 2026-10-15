@@ -1,0 +1,55 @@
+.como {
+  padding-block: 4.5rem;
+  background: var(--negro);
+  color: var(--blanco);
+}
+
+.como__titulo {
+  margin: 0 0 2.5rem;
+  font-weight: 800;
+  font-size: clamp(2.2rem, 6vw, 3.6rem);
+  line-height: 1;
+  letter-spacing: -.03em;
+}
+
+/* Las líneas entre pasos son el fondo que asoma por el gap de 1px */
+.como__pasos {
+  display: grid;
+  gap: 1px;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  list-style: none;
+  border: 1px solid var(--linea-clara);
+  border-radius: var(--radio);
+  background: var(--linea-clara);
+  counter-reset: paso;
+}
+@media (min-width: 900px) {
+  .como__pasos { grid-template-columns: repeat(3, 1fr); }
+}
+
+.como__pasos li {
+  padding: 1.75rem 1.5rem 2rem;
+  background: var(--negro);
+  counter-increment: paso;
+}
+.como__pasos li::before {
+  content: counter(paso);
+  display: block;
+  margin-bottom: 1rem;
+  color: var(--amarillo);
+  font-weight: 800;
+  font-size: 3.5rem;
+  line-height: 1;
+}
+.como__pasos h3 {
+  margin: 0 0 .35rem;
+  font-size: 1.25rem;
+  font-weight: 800;
+}
+.como__pasos p {
+  max-width: 32ch;
+  margin: 0;
+  color: var(--suave-claro);
+}
