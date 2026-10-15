@@ -1,5 +1,7 @@
 import { useProductos } from '../../hooks/useProductos.ts'
+import { useCarrito } from '../../context/CarritoContext.tsx'
 import type { Producto } from '../../types/producto.ts'
+import { volarAlCarrito } from '../carrito/volarAlCarrito.ts'
 import CardProducto from './CardProducto.tsx'
 import './Grilla.css'
 
@@ -56,12 +58,27 @@ export default function Grilla() {
 }
 
 function Lista({ productos }: { productos: Producto[] }) {
+  const { agregar, cantidadDe } = useCarrito()
   const { destacado, resto } = ordenar(productos)
+
+  const alAgregar = (producto: Producto, origen: HTMLElement) => {
+    agregar(producto)
+    volarAlCarrito(origen)
+  }
+
   return (
     <div className="grilla">
-      {destacado && <CardProducto producto={destacado} destacada />}
+      {destacado && (
+        <CardProducto producto={destacado} destacada onAgregar={alAgregar} enCarrito={cantidadDe(destacado._id)} />
+      )}
       {resto.map((p, i) => (
-        <CardProducto key={p._id} producto={p} className={anchaEnMobile(i, resto.length)} />
+        <CardProducto
+          key={p._id}
+          producto={p}
+          className={anchaEnMobile(i, resto.length)}
+          onAgregar={alAgregar}
+          enCarrito={cantidadDe(p._id)}
+        />
       ))}
     </div>
   )

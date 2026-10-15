@@ -99,3 +99,24 @@ Antes del deploy hay que crear un proyecto de Atlas **propio de la tienda**, sin
 | El front no carga productos (error de CORS en la consola) | Falta el dominio en los CORS de Sanity (ver la sección Sanity). |
 | Una ruta del front da 404 al recargar | El rewrite `/(.*)` → `/index.html` en `vercel.json`. |
 | Logs | Vercel → proyecto → **Logs**. En Hobby duran 1 hora. |
+
+## Probar en el celular
+
+Para ver la tienda de desarrollo en un celular real (deslizar la galería, el drawer del carrito, etc.), con el celular y la PC **en la misma red Wi-Fi**:
+
+1. **Levantá Vite escuchando en la red.** `npm run dev -- --host` **no sirve**: `concurrently` se queda con el `--host` y Vite no lo recibe. Usá:
+   ```bash
+   npx vite --host
+   ```
+   La tienda lee Sanity directo, así que alcanza con Vite. Si hace falta la API (panel, checkout), corré `node --watch server/dev.js` en otra terminal.
+2. **Abrí la URL de red** que muestra Vite (`➜  Network: http://192.168.x.x:5173/`) desde el navegador del celular. El puerto es el 5173, o el 5174 si el 5173 está ocupado. Si Windows pregunta por el firewall, permití Node.js en **redes privadas**.
+3. **Sumá ese origen a los CORS de Sanity** (si no, el catálogo dice "No pudimos cargar los productos."). Con la IP y el puerto exactos, desde la raíz del repo:
+   ```bash
+   npx sanity@latest cors add http://192.168.x.x:5173 --no-credentials --project-id de0zicdv
+   ```
+4. **Al terminar, sacalo:** la IP de la PC cambia, y no conviene dejar orígenes viejos.
+   ```bash
+   npx sanity@latest cors delete http://192.168.x.x:5173 --project-id de0zicdv
+   npx sanity@latest cors list --project-id de0zicdv
+   ```
+   Tienen que quedar solo `http://localhost:5173` y `http://localhost:5174`.

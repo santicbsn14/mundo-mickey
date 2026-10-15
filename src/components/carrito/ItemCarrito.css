@@ -1,0 +1,78 @@
+/* `.item` de la maqueta: miniatura | nombre + cantidad | precio */
+.item {
+  display: grid;
+  grid-template-columns: 56px 1fr auto;
+  align-items: center;
+  gap: .35rem .85rem;
+}
+
+.item__mini {
+  grid-row: span 2;
+  align-self: start;
+  width: 56px;
+  height: 56px;
+  overflow: hidden;
+  border-radius: 14px;
+  background: var(--amarillo);
+}
+.item__mini img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.item__nombre {
+  border-radius: 4px;
+  color: var(--negro);
+  font-weight: 800;
+  line-height: 1.2;
+  text-decoration: none;
+}
+@media (hover: hover) {
+  .item__nombre:hover { text-decoration: underline; text-underline-offset: 3px; }
+}
+
+.item__precio {
+  font-weight: 800;
+  text-align: right;
+}
+
+.item__controles {
+  grid-column: 2 / -1;
+  display: grid;
+  justify-items: start;
+  gap: .25rem;
+}
+
+.cantidad {
+  display: inline-flex;
+  align-items: center;
+  gap: .1rem;
+  width: fit-content;
+  border: 2px solid var(--negro);
+  border-radius: 999px;
+}
+.cantidad button {
+  width: 2rem;
+  height: 1.9rem;
+  border: 0;
+  border-radius: 999px;
+  background: none;
+  font-weight: 800;
+  font-size: 1.05rem;
+}
+.cantidad button[aria-disabled="true"] {
+  opacity: .3;
+  cursor: not-allowed;
+}
+.cantidad span {
+  min-width: 1.4rem;
+  font-weight: 800;
+  text-align: center;
+}
+
+.item__tope {
+  color: var(--suave);
+  font-size: .8rem;
+  font-weight: 600;
+}

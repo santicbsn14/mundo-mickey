@@ -55,8 +55,53 @@
 .info__acciones {
   display: flex;
   flex-wrap: wrap;
+  align-items: flex-start;
   gap: .75rem;
+  width: 100%;
   margin-top: .5rem;
+}
+
+/* Agregar al carrito: ancho completo en mobile, con el texto de "Tenés N" debajo */
+.info__compra {
+  display: grid;
+  justify-items: start;
+  width: 100%;
+}
+@media (min-width: 900px) {
+  .info__compra { width: auto; }
+}
+
+.info__agregar {
+  width: 100%;
+  padding: .9rem 2rem;
+  border: 2px solid var(--negro);
+  border-radius: 999px;
+  background: var(--negro);
+  color: var(--amarillo);
+  font-weight: 800;
+  font-size: 1.05rem;
+  transition: transform .15s;
+}
+.info__agregar:active { transform: scale(.97); }
+/* Sin más stock: mismo look que el de la card */
+.info__agregar[aria-disabled="true"] {
+  border: 2px dashed var(--suave);
+  background: transparent;
+  color: var(--suave);
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* La región está siempre (aria-live); el espacio aparece solo cuando tiene texto */
+.info__en-carrito { font-size: .95rem; }
+.info__en-carrito:not(:empty) { margin-top: .5rem; }
+.info__ver-carrito {
+  padding: 0;
+  border: 0;
+  background: none;
+  font-weight: 800;
+  text-decoration: underline;
+  text-underline-offset: 3px;
 }
 
 .info__whatsapp {
@@ -73,4 +118,8 @@
 }
 @media (hover: hover) {
   .info__whatsapp:hover { background: var(--amarillo); }
+  .info__agregar:not([aria-disabled="true"]):hover {
+    background: var(--amarillo);
+    color: var(--negro);
+  }
 }

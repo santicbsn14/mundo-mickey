@@ -1,0 +1,152 @@
+/* ===== Carrito (como la maqueta) ===== */
+.velo {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  background: rgba(0, 0, 0, .55);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .3s;
+}
+.velo--on {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.carrito {
+  position: fixed;
+  z-index: 50;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: min(430px, 100%);
+  display: flex;
+  flex-direction: column;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  background: var(--blanco);
+  color: var(--negro);
+  transform: translateX(100%);
+  /* Cerrado queda fuera del Tab con `visibility: hidden`, pero recién cuando termina de salir */
+  visibility: hidden;
+  transition: transform .4s var(--ease), visibility 0s linear .4s;
+}
+.carrito--on {
+  transform: none;
+  visibility: visible;
+  transition: transform .4s var(--ease), visibility 0s;
+}
+
+.carrito__cab {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.1rem 1.25rem;
+  border-bottom: 2px solid var(--negro);
+}
+.carrito__cab h2 {
+  font-size: 1.6rem;
+  font-weight: 800;
+  letter-spacing: -.02em;
+}
+.carrito__cerrar {
+  width: 2.5rem;
+  height: 2.5rem;
+  border: 2px solid var(--negro);
+  border-radius: 50%;
+  background: var(--blanco);
+  font-size: 1.1rem;
+  line-height: 1;
+}
+@media (hover: hover) {
+  .carrito__cerrar:hover { background: var(--amarillo); }
+}
+
+/* Lista con scroll; la cabecera y el pie quedan fijos */
+.carrito__cuerpo {
+  flex: 1;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.carrito__aviso {
+  margin: 1rem 1.25rem 0;
+  padding: .7rem .9rem;
+  border: 2px solid var(--negro);
+  border-radius: 14px;
+  background: var(--amarillo);
+  font-weight: 600;
+  font-size: .92rem;
+  line-height: 1.35;
+}
+
+.carrito__lista {
+  display: grid;
+  align-content: start;
+  gap: .75rem;
+  margin: 0;
+  padding: 1rem 1.25rem;
+  list-style: none;
+}
+
+.carrito__vacio {
+  padding: 3rem 1rem;
+  color: var(--suave);
+  text-align: center;
+}
+.carrito__vacio strong {
+  display: block;
+  margin-bottom: .25rem;
+  color: var(--negro);
+  font-size: 1.15rem;
+}
+
+.carrito__pie {
+  display: grid;
+  gap: .9rem;
+  padding: 1.1rem 1.25rem 1.25rem;
+  border-top: 2px solid var(--negro);
+}
+.carrito__subtotal {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+}
+.carrito__subtotal strong {
+  font-size: 2rem;
+  font-weight: 800;
+  letter-spacing: -.03em;
+}
+.carrito__nota {
+  margin-top: -.6rem;
+  color: var(--suave);
+  font-size: .85rem;
+}
+
+/* `.pagar` de la maqueta */
+.carrito__continuar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  border: 0;
+  border-radius: 999px;
+  background: var(--negro);
+  color: var(--amarillo);
+  font-weight: 800;
+  font-size: 1.05rem;
+  transition: transform .15s;
+}
+.carrito__continuar:active { transform: scale(.97); }
+.carrito__continuar:disabled {
+  opacity: .35;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Sin deslizarse: aparece y desaparece en el lugar */
+@media (prefers-reduced-motion: reduce) {
+  .velo,
+  .carrito,
+  .carrito--on { transition: none; }
+}

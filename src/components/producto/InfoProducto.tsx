@@ -1,6 +1,9 @@
+import { useCarrito } from '../../context/CarritoContext.tsx'
 import { useConfiguracion } from '../../hooks/useConfiguracion.ts'
 import { pesos } from '../../lib/formato.ts'
 import type { Producto } from '../../types/producto.ts'
+import { useSumado } from '../carrito/useSumado.ts'
+import { volarAlCarrito } from '../carrito/volarAlCarrito.ts'
 import './InfoProducto.css'
 
 interface Props {
@@ -15,7 +18,12 @@ export default function InfoProducto({ producto }: Props) {
   const whatsapp = configuracion?.whatsapp?.replace(/\D/g, '')
   const mensaje = `Hola! Quiero consultar por "${producto.nombre}"`
 
+  const { agregar, cantidadDe, abrir } = useCarrito()
+  const [sumado, marcarSumado] = useSumado()
+
   const { stock } = producto
+  const enCarrito = cantidadDe(producto._id)
+  const lleno = enCarrito >= stock
   const aviso =
     stock <= 0 ? null : stock === 1 ? '¡Queda 1!' : stock <= POCAS_UNIDADES ? `¡Quedan ${stock}!` : null
 
@@ -30,7 +38,34 @@ export default function InfoProducto({ producto }: Props) {
       {aviso && <span className="info__quedan">{aviso}</span>}
 
       <div className="info__acciones">
-        {/* Botón "Agregar al carrito": lo conecta el brief 05 */}
+        {stock > 0 && (
+          <div className="info__compra">
+            {/* aria-disabled y no disabled: así el botón no pierde el foco al llegar al tope */}
+            <button
+              type="button"
+              className="info__agregar"
+              aria-disabled={lleno || undefined}
+              onClick={(e) => {
+                if (lleno) return
+                agregar(producto)
+                volarAlCarrito(e.currentTarget)
+                marcarSumado()
+              }}
+            >
+              {sumado ? '¡Sumado!' : lleno ? 'Sin más stock' : 'Agregar al carrito'}
+            </button>
+            <p className="info__en-carrito" aria-live="polite">
+              {enCarrito > 0 && (
+                <>
+                  Tenés {enCarrito} en el carrito ·{' '}
+                  <button type="button" className="info__ver-carrito" onClick={abrir}>
+                    Ver carrito
+                  </button>
+                </>
+              )}
+            </p>
+          </div>
+        )}
 
         {whatsapp && (
           <a

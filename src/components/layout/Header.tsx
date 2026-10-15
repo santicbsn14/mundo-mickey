@@ -1,9 +1,11 @@
 import { Link } from 'react-router-dom'
+import { useCarrito } from '../../context/CarritoContext.tsx'
+import { ID_BOTON_CARRITO } from '../carrito/volarAlCarrito.ts'
 import './Header.css'
 
 export default function Header() {
-  // Contador fijo hasta el brief 05 (carrito)
-  const cantidad = 0
+  // El `pop` al agregar lo hace volarAlCarrito, que encuentra el botón por su id
+  const { cantidadTotal: cantidad, abrir } = useCarrito()
 
   return (
     <header className="header">
@@ -18,7 +20,13 @@ export default function Header() {
           <Link to="/#contacto">Contacto</Link>
         </nav>
 
-        <button type="button" className="btn-carrito" aria-label={`Abrir carrito, ${cantidad} productos`}>
+        <button
+          type="button"
+          id={ID_BOTON_CARRITO}
+          className="btn-carrito"
+          aria-label={`Abrir carrito, ${cantidad} ${cantidad === 1 ? 'producto' : 'productos'}`}
+          onClick={abrir}
+        >
           Carrito <span className="btn-carrito__cant" aria-hidden="true">{cantidad}</span>
         </button>
       </div>
