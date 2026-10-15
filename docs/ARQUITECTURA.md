@@ -140,11 +140,14 @@ Guarda cada notificación de MP recibida y el resultado de procesarla. Sirve par
 | Método | Ruta | Uso |
 |---|---|---|
 | POST | `/api/admin/login` | devuelve JWT (12 horas) |
+| GET | `/api/admin/sesion` | valida el token guardado: usuario y vencimiento |
 | GET | `/api/admin/pedidos?estado=&q=` | listado |
 | GET | `/api/admin/pedidos/:id` | detalle completo |
 | PATCH | `/api/admin/pedidos/:id` | estado, seguimiento y nota interna |
 | GET | `/api/admin/productos` | todos, también los ocultos (lectura sin CDN) |
+| GET | `/api/admin/productos/:id` | uno, con la misma forma |
 | POST | `/api/admin/productos` | crear |
+| PATCH | `/api/admin/productos/orden` | reordenar: `{ ids }` con todos los productos en el orden nuevo |
 | PUT | `/api/admin/productos/:id` | editar |
 | DELETE | `/api/admin/productos/:id` | eliminar |
 | POST | `/api/admin/imagenes` | subir 1 imagen a Sanity |
@@ -200,7 +203,9 @@ mundo-mickey/
 │   ├── DEPLOY.md
 │   ├── avances/
 │   └── referencia/ (maqueta.html, logo.png)
-├── scripts/              (seed.js: carga productos de prueba; limpiar-seed.js: los borra)
+├── scripts/              (seed.js: carga productos de prueba; limpiar-seed.js: los borra;
+│                          hash-password.js: hash de la contraseña del admin;
+│                          limpiar-imagenes.js: borra las imágenes sin usar de más de 24 h)
 ├── index.html
 ├── vite.config.ts
 ├── vercel.json
@@ -242,6 +247,9 @@ Cada componente lleva su CSS al lado: `Header.tsx` con `Header.css`.
 - **El webhook es la única fuente de verdad del pago.** Las `back_urls` solo muestran un mensaje.
 - **El stock se descuenta recién al aprobarse el pago**, no al crear el pedido. Con este volumen, el riesgo de sobreventa simultánea es mínimo, y si pasa se devuelve desde MP.
 - **Un solo usuario admin**, con credenciales en variables de entorno (`ADMIN_USER` y `ADMIN_PASSWORD_HASH` con bcrypt) y JWT.
+- **El token del admin va en `localStorage` y vence a las 12 horas.** Sin cookies ni sesiones del lado del server. Al abrir el panel se valida con `GET /api/admin/sesion`.
+- **Límite de intentos de login por IP:** 5 fallidos cada 15 minutos. En serverless el contador vive en la memoria de cada instancia, así que es una protección parcial; con una contraseña larga y bcrypt alcanza para este caso.
+- **El slug queda fijo después de crear el producto:** aunque se edite el nombre, no cambia, para no romper links ya compartidos.
 - **Regla de variables de entorno:** solo lo que empieza con `VITE_` llega al navegador. Los secretos (tokens, claves, JWT) **nunca** llevan ese prefijo.
 
 ## Pendientes / a definir con el cliente

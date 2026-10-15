@@ -1,0 +1,98 @@
+.login {
+  min-height: 100dvh;
+  display: grid;
+  place-items: center;
+  padding: max(1.5rem, env(safe-area-inset-top, 0px)) 1rem 2rem;
+  background: var(--amarillo);
+}
+
+.login__caja {
+  width: min(400px, 100%);
+  padding: 2rem 1.5rem;
+  border: 2px solid var(--negro);
+  border-radius: var(--radio);
+  background: var(--blanco);
+}
+
+.login__logo {
+  width: 64px;
+  height: 64px;
+  margin: 0 auto 1rem;
+  object-fit: contain;
+}
+
+.login__titulo {
+  font-weight: 800;
+  font-size: 1.6rem;
+  line-height: 1.1;
+  letter-spacing: -.02em;
+  text-align: center;
+}
+
+.login__form {
+  display: grid;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.login__error {
+  padding: .75rem 1rem;
+  border: 2px solid var(--negro);
+  border-radius: 12px;
+  background: var(--amarillo);
+  font-weight: 600;
+}
+
+.login__campo {
+  display: grid;
+  gap: .35rem;
+}
+.login__campo > span,
+.login__campo > label { font-weight: 600; }
+
+.login__campo input {
+  width: 100%;
+  min-height: 48px;
+  padding: .6rem .9rem;
+  border: 2px solid var(--suave);
+  border-radius: 12px;
+  background: var(--blanco);
+  font-size: 1rem; /* 16px: iOS no hace zoom al enfocar */
+}
+.login__campo input:focus-visible {
+  outline-offset: 1px;
+  border-color: var(--negro);
+}
+
+.login__password { position: relative; }
+.login__password input { padding-right: 6.5rem; }
+
+.login__ver {
+  position: absolute;
+  top: 50%;
+  right: .35rem;
+  transform: translateY(-50%);
+  min-height: 36px;
+  padding: .25rem .8rem;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  font-size: .95rem;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.login__ver:hover { background: rgba(0, 0, 0, .06); }
+
+.login__enviar {
+  min-height: 52px;
+  margin-top: .5rem;
+  border: 0;
+  border-radius: 999px;
+  background: var(--negro);
+  color: var(--blanco);
+  font-weight: 800;
+  font-size: 1.05rem;
+}
+.login__enviar:hover:not(:disabled) { background: #000; box-shadow: 0 0 0 3px var(--amarillo) inset; }
+.login__enviar:disabled { opacity: .6; cursor: progress; }

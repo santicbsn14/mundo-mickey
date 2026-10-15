@@ -62,6 +62,9 @@ Antes del deploy hay que crear un proyecto de Atlas **propio de la tienda**, sin
    | `SANITY_PROJECT_ID` | `de0zicdv` |
    | `SANITY_DATASET` | `production` |
    | `SANITY_WRITE_TOKEN` | el mismo valor de tu `.env` local (token Editor `mundo-mickey-api`) |
+   | `ADMIN_USER` | el usuario del panel (por ejemplo `admin`) |
+   | `ADMIN_PASSWORD_HASH` | el hash de la contraseña de **producción**, que elegís vos: corré `npm run admin:hash`, escribila dos veces y pegá el hash que imprime, tal cual y sin comillas. **No uses la contraseña de desarrollo** del `.env` local |
+   | `JWT_SECRET` | uno **nuevo**, distinto del de desarrollo: `node -e "console.log(require('crypto').randomBytes(48).toString('base64url'))"`. Si lo cambiás, todas las sesiones abiertas se cierran |
 4. **Deploy.** Si cambiás variables después, hacé **Redeploy**: no se aplican a deploys anteriores.
 
 > **Plan:** Hobby es solo para uso personal y **no comercial**. Para probar alcanza, pero para la tienda en vivo corresponde **Pro**.
@@ -102,13 +105,13 @@ Antes del deploy hay que crear un proyecto de Atlas **propio de la tienda**, sin
 
 ## Probar en el celular
 
-Para ver la tienda de desarrollo en un celular real (deslizar la galería, el drawer del carrito, etc.), con el celular y la PC **en la misma red Wi-Fi**:
+Para ver la tienda o el panel de desarrollo en un celular real (deslizar la galería, el drawer del carrito, el login, etc.), con el celular y la PC **en la misma red Wi-Fi**:
 
-1. **Levantá Vite escuchando en la red.** `npm run dev -- --host` **no sirve**: `concurrently` se queda con el `--host` y Vite no lo recibe. Usá:
+1. **Levantá todo escuchando en la red:**
    ```bash
-   npx vite --host
+   npm run dev:host
    ```
-   La tienda lee Sanity directo, así que alcanza con Vite. Si hace falta la API (panel, checkout), corré `node --watch server/dev.js` en otra terminal.
+   Es igual a `npm run dev` (Vite + API), pero con Vite en `--host`. La API no hace falta exponerla: el celular le habla a Vite y Vite le pasa `/api` a la API por el proxy. (`npm run dev -- --host` **no sirve**: `concurrently` se queda con el `--host` y Vite no lo recibe.)
 2. **Abrí la URL de red** que muestra Vite (`➜  Network: http://192.168.x.x:5173/`) desde el navegador del celular. El puerto es el 5173, o el 5174 si el 5173 está ocupado. Si Windows pregunta por el firewall, permití Node.js en **redes privadas**.
 3. **Sumá ese origen a los CORS de Sanity** (si no, el catálogo dice "No pudimos cargar los productos."). Con la IP y el puerto exactos, desde la raíz del repo:
    ```bash

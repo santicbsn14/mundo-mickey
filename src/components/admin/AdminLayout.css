@@ -53,8 +53,33 @@
   font-weight: 800;
 }
 
+.admin-barra__titulo { margin-right: auto; }
+
+.admin-barra__salir {
+  flex-shrink: 0;
+  padding: .35rem .9rem;
+  border: 2px solid transparent;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--suave-claro);
+  font-weight: 600;
+  white-space: nowrap;
+}
+.admin-barra__salir:hover { color: var(--blanco); border-color: var(--linea-clara); }
+
+/* Mobile: título y "Salir" arriba, las secciones en una fila completa abajo */
 @media (max-width: 599px) {
-  .admin-barra__nav { flex-basis: 100%; }
+  .admin-barra__nav { flex-basis: 100%; order: 3; }
 }
 
 .admin-main { padding-block: 2rem 3rem; }
+
+/* "Esta sección no existe" */
+.admin-vacia h1 {
+  font-weight: 800;
+  font-size: clamp(1.6rem, 5vw, 2.2rem);
+  line-height: 1.1;
+  letter-spacing: -.02em;
+}
+.admin-vacia p { margin-top: .75rem; color: var(--suave); }
+.admin-vacia a { color: var(--negro); font-weight: 600; }
