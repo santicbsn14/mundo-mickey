@@ -10,7 +10,7 @@ export default function Footer() {
   const instagram = configuracion?.instagram?.trim().replace(/^@/, '')
 
   return (
-    <footer className="footer" id="contacto">
+    <footer className="footer">
       <div className="contenedor footer__grid">
         <div className="footer__logo">
           <img src="/logo.png" alt="Mundo Mickey" width={117} height={64} loading="lazy" />
@@ -38,6 +38,16 @@ export default function Footer() {
             </p>
           )}
         </div>
+      </div>
+      <div className="contenedor footer__credito">
+        <p>© {new Date().getFullYear()} Mundo Mickey</p>
+        <p>
+          Desarrollado por{' '}
+          {/* Sin noreferrer: así el sitio ve que la visita vino de acá */}
+          <a href="https://vialesistemas.com.ar" target="_blank" rel="noopener">
+            Santiago Viale Sistemas
+          </a>
+        </p>
       </div>
     </footer>
   )

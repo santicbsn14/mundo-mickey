@@ -4,6 +4,7 @@ import { posicionGuardada } from '../components/layout/ScrollArriba.tsx'
 import Hero from '../components/home/Hero.tsx'
 import Marquesina from '../components/home/Marquesina.tsx'
 import ComoComprar from '../components/home/ComoComprar.tsx'
+import Visitanos from '../components/home/Visitanos.tsx'
 import Grilla from '../components/catalogo/Grilla.tsx'
 
 export default function Home() {
@@ -47,6 +48,7 @@ export default function Home() {
       <Marquesina />
       <Grilla />
       <ComoComprar />
+      <Visitanos />
     </>
   )
 }

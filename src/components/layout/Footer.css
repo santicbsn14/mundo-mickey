@@ -31,3 +31,21 @@
   font-weight: 600;
   text-underline-offset: 3px;
 }
+
+/* Franja final: copyright y crédito */
+.footer__credito {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: .25rem 2rem;
+  margin-top: 2.5rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid rgba(0, 0, 0, .15);
+  font-size: .875rem;
+}
+.footer__credito p + p { margin-top: 0; }
+.footer__credito a {
+  color: var(--suave);
+  font-weight: 400;
+  text-decoration: underline;
+}
