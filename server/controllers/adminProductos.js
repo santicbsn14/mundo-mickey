@@ -141,22 +141,15 @@ export async function reordenar(req, res) {
   res.json(await sanityLectura().fetch(`*[_type == "producto"] | order(orden asc)${PROYECCION_ADMIN}`))
 }
 
-/** DELETE /api/admin/productos/:id: borra el producto y, si nadie más las usa, sus imágenes. */
+/**
+ * DELETE /api/admin/productos/:id: borra solo el documento. Las fotos quedan, porque los pedidos
+ * guardan la URL de la imagen; las que no usa nadie las limpia `npm run imagenes:limpiar`.
+ */
 export async function eliminar(req, res) {
   const { id } = req.params
   const producto = await buscarProducto(id)
   if (!producto) return res.status(404).json({ error: 'El producto no existe.' })
 
   await sanityEscritura().delete(id)
-
-  // Sanity no deja borrar un asset que otro documento referencia: en ese caso se deja como está
-  for (const img of producto.imagenes ?? []) {
-    try {
-      await sanityEscritura().delete(img._ref)
-    } catch (err) {
-      console.warn(`No se borró la imagen ${img._ref} del producto ${id}: ${err.message}`)
-    }
-  }
-
   res.status(204).end()
 }

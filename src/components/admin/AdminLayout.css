@@ -83,3 +83,114 @@
 }
 .admin-vacia p { margin-top: .75rem; color: var(--suave); }
 .admin-vacia a { color: var(--negro); font-weight: 600; }
+
+/* ---------- Piezas comunes de las pantallas del panel ---------- */
+
+.adm-titulo {
+  font-weight: 800;
+  font-size: clamp(1.6rem, 5vw, 2.2rem);
+  line-height: 1.1;
+  letter-spacing: -.02em;
+}
+
+/* Botones: 44px de alto como mínimo, para el dedo */
+.adm-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: .4rem;
+  min-height: 44px;
+  min-width: 44px;
+  padding: .45rem 1rem;
+  border: 2px solid var(--negro);
+  border-radius: 999px;
+  background: var(--blanco);
+  color: var(--negro);
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1.15;
+  text-align: center;
+  text-decoration: none;
+}
+.adm-btn:hover:not(:disabled) { background: rgba(0, 0, 0, .06); }
+.adm-btn:disabled { opacity: .4; cursor: not-allowed; }
+
+.adm-btn--primario {
+  border-color: var(--negro);
+  background: var(--negro);
+  color: var(--blanco);
+  font-weight: 800;
+}
+.adm-btn--primario:hover:not(:disabled) { background: var(--negro); box-shadow: 0 0 0 3px var(--amarillo) inset; }
+.adm-btn--primario:disabled { opacity: .55; cursor: progress; }
+
+.adm-btn--amarillo {
+  background: var(--amarillo);
+  font-weight: 800;
+}
+.adm-btn--amarillo:hover:not(:disabled) { background: var(--amarillo); box-shadow: 0 0 0 2px var(--negro) inset; }
+
+/* Botón con forma de link, para acciones secundarias */
+.adm-btn--texto {
+  border-color: transparent;
+  background: transparent;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+/* Error general: amarillo con borde negro, como en el login */
+.adm-alerta {
+  padding: .75rem 1rem;
+  border: 2px solid var(--negro);
+  border-radius: 12px;
+  background: var(--amarillo);
+  font-weight: 600;
+}
+
+/* Aviso que se cierra con ✕ */
+.adm-aviso {
+  display: flex;
+  align-items: flex-start;
+  gap: .5rem;
+  padding: .35rem .35rem .35rem 1rem;
+  border: 2px solid var(--negro);
+  border-radius: 12px;
+  background: var(--blanco);
+  font-weight: 600;
+}
+.adm-aviso p { flex: 1; padding-block: .55rem; }
+.adm-aviso button {
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  font-size: 1.2rem;
+}
+.adm-aviso button:hover { background: rgba(0, 0, 0, .06); }
+
+/* Rótulos: solo negro, blanco y amarillo, variando relleno y borde */
+.adm-rotulo {
+  display: inline-block;
+  padding: .1rem .55rem;
+  border: 2px solid var(--negro);
+  border-radius: 999px;
+  font-size: .8rem;
+  font-weight: 800;
+  line-height: 1.3;
+  white-space: nowrap;
+}
+.adm-rotulo--amarillo { background: var(--amarillo); }
+.adm-rotulo--negro { background: var(--negro); color: var(--blanco); }
+.adm-rotulo--hueco { border-style: dashed; background: var(--blanco); }
+
+.adm-estado { padding-block: 2rem; color: var(--suave); font-weight: 600; }
+.adm-estado-error { display: grid; justify-items: start; gap: 1rem; margin-top: 1.5rem; }
+
+/* Error de un campo, debajo del campo */
+.adm-error-campo {
+  font-size: .95rem;
+  font-weight: 700;
+}
+.adm-error-campo::before { content: "⚠ "; }
