@@ -27,7 +27,7 @@ export async function obtenerProductoPorSlug(slug: string): Promise<Producto | n
 export async function obtenerConfiguracion(): Promise<Configuracion | null> {
   const config = await sanity().fetch<Configuracion | null>(
     `*[_id == "configuracion"][0] {
-      whatsapp, instagram, direccion, horarios, envioLocal, envioNacional, marquesina
+      whatsapp, instagram, direccion, horarios, mapaUrl, envioLocal, envioNacional, marquesina
     }`,
   )
   return config ?? null

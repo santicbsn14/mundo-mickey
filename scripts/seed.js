@@ -37,6 +37,7 @@ const CONFIGURACION = {
   instagram: 'mundomickey',
   direccion: 'Dirección del local, San Nicolás de los Arroyos',
   horarios: 'Lunes a sábados de 9 a 13 y de 17 a 21',
+  mapaUrl: '',
   envioLocal: { habilitado: true, costo: 3000, texto: 'Solo San Nicolás' },
   envioNacional: {
     habilitado: true,

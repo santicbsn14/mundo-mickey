@@ -359,13 +359,13 @@ export default function FormProducto({ producto }: Props) {
         </div>
 
         {/* Fijo abajo mientras se recorre el formulario */}
-        <div className="fp__barra">
+        <div className="adm-barra-guardar">
           {errorGeneral && (
             <div ref={alerta} className="adm-alerta" role="alert" tabIndex={-1}>
               {errorGeneral}
             </div>
           )}
-          <button type="submit" className="adm-btn adm-btn--primario fp__guardar" disabled={guardando || subidas.subiendo}>
+          <button type="submit" className="adm-btn adm-btn--primario adm-guardar" disabled={guardando || subidas.subiendo}>
             {guardando ? 'Guardando…' : subidas.subiendo ? 'Esperá a que suban las fotos…' : 'Guardar'}
           </button>
         </div>

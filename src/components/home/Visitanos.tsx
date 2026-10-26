@@ -23,10 +23,18 @@ export default function Visitanos() {
   const whatsapp = configuracion?.whatsapp?.replace(/\D/g, '')
   const instagram = configuracion?.instagram?.trim().replace(/^@/, '')
   const consulta = direccion ? encodeURIComponent(consultaMapa(direccion)) : undefined
+  // El link de Maps del local marca el lugar exacto; sin él, la búsqueda por la dirección.
+  // El mapa embebido siempre usa la búsqueda: los links compartidos de Maps no se pueden embeber.
+  const mapaUrl = configuracion?.mapaUrl?.trim()
+  const comoLlegar = mapaUrl?.startsWith('https://')
+    ? mapaUrl
+    : consulta && `https://www.google.com/maps/search/?api=1&query=${consulta}`
+  // Sin mapa, una sola columna (en desktop no queda la derecha vacía)
+  const conMapa = cargando || !!consulta
 
   return (
     <section className="visitanos" id="contacto" aria-labelledby="visitanos-titulo">
-      <div className="contenedor visitanos__grid">
+      <div className={`contenedor visitanos__grid${conMapa ? '' : ' visitanos__grid--sin-mapa'}`}>
         <div className="visitanos__info">
           <h2 className="visitanos__titulo" id="visitanos-titulo">Visitanos</h2>
           <p className="visitanos__bajada">Retirá tu compra en el local o pasá a conocer los juguetes.</p>
@@ -68,7 +76,7 @@ export default function Visitanos() {
                 </div>
               )}
 
-              {(whatsapp || consulta) && (
+              {(whatsapp || comoLlegar) && (
                 <div className="visitanos__botones">
                   {whatsapp && (
                     <a
@@ -80,10 +88,10 @@ export default function Visitanos() {
                       Escribinos por WhatsApp
                     </a>
                   )}
-                  {consulta && (
+                  {comoLlegar && (
                     <a
                       className="visitanos__btn visitanos__btn--borde"
-                      href={`https://www.google.com/maps/search/?api=1&query=${consulta}`}
+                      href={comoLlegar}
                       target="_blank"
                       rel="noopener noreferrer"
                     >

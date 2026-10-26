@@ -59,4 +59,4 @@ export interface EstadoListado {
   aviso?: string
 }
 
-export const AVISO_CDN = 'Puede tardar hasta un minuto en verse en la tienda.'
+export const AVISO_CDN = 'Puede tardar un par de minutos en verse en la tienda.'

@@ -1,7 +1,9 @@
+import FormConfiguracion from '../../components/admin/FormConfiguracion.tsx'
+
 export default function AdminConfiguracion() {
   return (
-    <section className="contenedor placeholder">
-      <h1>Configuración</h1>
-    </section>
+    <div className="contenedor">
+      <FormConfiguracion />
+    </div>
   )
 }

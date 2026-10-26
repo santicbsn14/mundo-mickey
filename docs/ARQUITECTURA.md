@@ -43,7 +43,7 @@ El cliente elige y paga online con Mercado Pago. Después hay tres formas de ent
 | Envío en San Nicolás | fijo, configurable desde el panel | se suma al pago de MP como ítem "Envío" |
 | Envío al resto del país | se coordina por WhatsApp | **no se cobra en la web**; el comprador lo paga aparte o en destino (pago en destino del correo) |
 
-Cada opción se puede activar o desactivar desde Configuración. El texto que explica la opción nacional también se edita desde ahí.
+**El retiro en el local está siempre disponible.** Solo los dos envíos se pueden activar o desactivar desde Configuración. El texto que explica la opción nacional también se edita desde ahí.
 
 ## Stack y deploy
 - **Un solo proyecto en Vercel.** El front es una SPA de Vite y la API es Express corriendo como una única **Vercel Function** en `api/index.js`. Se despliega todo junto con un push y queda en el mismo dominio, sin CORS.
@@ -75,6 +75,7 @@ Cada opción se puede activar o desactivar desde Configuración. El texto que ex
 
 ### Sanity: `configuracion` (documento único, `_id: "configuracion"`)
 - `whatsapp`, `instagram`, `direccion`, `horarios`
+- `mapaUrl`: string, opcional. Link de Google Maps del local para "Cómo llegar"; si está vacío, se busca por la dirección
 - `envioLocal`: `{ habilitado: boolean, costo: number, texto: string }`
 - `envioNacional`: `{ habilitado: boolean, texto: string }`
 - `marquesina`: array de strings
@@ -251,6 +252,7 @@ Cada componente lleva su CSS al lado: `Header.tsx` con `Header.css`.
 - **Límite de intentos de login por IP:** 5 fallidos cada 15 minutos. En serverless el contador vive en la memoria de cada instancia, así que es una protección parcial; con una contraseña larga y bcrypt alcanza para este caso.
 - **Borrar un producto no borra sus fotos, para no romper los pedidos:** cada pedido guarda la URL de la imagen del producto. Las fotos que no usa nadie las borra `npm run imagenes:limpiar`.
 - **El slug queda fijo después de crear el producto:** aunque se edite el nombre, no cambia, para no romper links ya compartidos.
+- **El WhatsApp se guarda en formato `wa.me` (`549…`, solo dígitos);** el panel muestra el prefijo +54 9 fijo para que el dueño no tenga que saberlo.
 - **Regla de variables de entorno:** solo lo que empieza con `VITE_` llega al navegador. Los secretos (tokens, claves, JWT) **nunca** llevan ese prefijo.
 
 ## Pendientes / a definir con el cliente

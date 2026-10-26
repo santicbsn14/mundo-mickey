@@ -5,6 +5,7 @@ import { subidaImagen } from '../middlewares/subida.js'
 import { login, sesion } from '../controllers/adminSesion.js'
 import * as productos from '../controllers/adminProductos.js'
 import { subirImagen } from '../controllers/adminImagenes.js'
+import * as configuracion from '../controllers/adminConfiguracion.js'
 
 const router = Router()
 
@@ -34,5 +35,8 @@ router.put('/productos/:id', productos.editar)
 router.delete('/productos/:id', productos.eliminar)
 
 router.post('/imagenes', subidaImagen, subirImagen)
+
+router.get('/configuracion', configuracion.ver)
+router.put('/configuracion', configuracion.guardar)
 
 export default router

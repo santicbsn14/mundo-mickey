@@ -1,0 +1,120 @@
+/* Los campos, el interruptor y la barra de "Guardar" son las piezas comunes de AdminLayout.css */
+
+.fc { width: min(720px, 100%); }
+
+.fc__aviso { margin-top: 1rem; }
+.fc__aviso:focus { outline: 3px solid var(--negro); outline-offset: 2px; }
+
+.fc__form { margin-top: 1.5rem; }
+
+.fc__seccion { display: grid; gap: 1.5rem; }
+.fc__seccion + .fc__seccion {
+  margin-top: 2.5rem;
+  padding-top: 2rem;
+  border-top: 2px solid var(--negro);
+}
+.fc__subtitulo {
+  font-weight: 800;
+  font-size: 1.4rem;
+  line-height: 1.15;
+  letter-spacing: -.01em;
+}
+
+/* Solo para lectores de pantalla */
+.fc__oculto {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* ---------- Prefijo fijo ("+54 9", "@") pegado al input ---------- */
+
+.fc__prefijado { display: flex; }
+.fc__prefijo {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  padding-inline: .8rem;
+  border: 2px solid var(--suave);
+  border-right: 0;
+  border-radius: 12px 0 0 12px;
+  background: rgba(0, 0, 0, .06);
+  font-weight: 800;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+.fc__prefijado .campo__input {
+  flex: 1;
+  min-width: 0;
+  border-radius: 0 12px 12px 0;
+}
+
+.fc__probar a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  color: var(--negro);
+  font-weight: 700;
+  text-underline-offset: 3px;
+}
+
+/* ---------- Envíos ---------- */
+
+.fc__envio {
+  display: grid;
+  gap: 1.25rem;
+  padding: 1rem;
+  border: 2px solid rgba(0, 0, 0, .15);
+  border-radius: 16px;
+}
+.fc__envio h3 + .campo__ayuda { margin-top: -1rem; }
+.fc__envio-campos { display: grid; gap: 1.25rem; }
+.fc__textarea-corto { min-height: 0; }
+
+/* ---------- Marquesina ---------- */
+
+.fc__textos {
+  display: grid;
+  gap: 1.25rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.fc__textos:focus { outline: none; }
+.fc__texto { display: grid; gap: .4rem; min-width: 0; }
+.fc__texto-label { font-weight: 700; }
+
+/* Mobile: el input arriba y los botones abajo. Desde 600px, en la misma fila. */
+.fc__texto-fila { display: grid; gap: .5rem; }
+.fc__texto-botones { display: flex; gap: .4rem; }
+.fc__texto-botones .adm-btn { min-height: 44px; }
+.fc__texto-botones .adm-btn:not(:last-child) { width: 44px; padding: 0; }
+@media (min-width: 600px) {
+  .fc__texto-fila { grid-template-columns: minmax(0, 1fr) auto; align-items: center; }
+}
+
+.fc__agregar { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem 1rem; }
+
+.fc__vista { display: grid; gap: .5rem; }
+
+/* Igual que la marquesina de la tienda, pero quieta y en varias líneas si no entra */
+.fc__banda {
+  display: flex;
+  flex-wrap: wrap;
+  border: 2px solid var(--negro);
+  background: var(--amarillo);
+  color: var(--negro);
+}
+.fc__banda span {
+  padding: .85rem 1.25rem;
+  font-weight: 800;
+  font-size: 1.15rem;
+  overflow-wrap: anywhere;
+}
+.fc__banda span:not(:last-child)::after {
+  content: "★";
+  margin-left: 2.5rem;
+}
