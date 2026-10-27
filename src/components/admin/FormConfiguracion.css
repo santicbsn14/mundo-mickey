@@ -72,7 +72,7 @@
 }
 .fc__envio h3 + .campo__ayuda { margin-top: -1rem; }
 .fc__envio-campos { display: grid; gap: 1.25rem; }
-.fc__textarea-corto { min-height: 0; }
+.fc__textarea-corto { min-height: 0; resize: vertical; }
 
 /* ---------- Marquesina ---------- */
 

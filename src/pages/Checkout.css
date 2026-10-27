@@ -1,0 +1,49 @@
+.checkout { padding-block: 1.75rem 4rem; }
+
+.checkout__titulo {
+  margin-bottom: 1.25rem;
+  font-size: clamp(1.9rem, 6vw, 2.75rem);
+  font-weight: 800;
+  letter-spacing: -.03em;
+  line-height: 1.05;
+}
+
+.checkout__grilla { display: grid; gap: 1.25rem; }
+.checkout__resumen { display: grid; gap: .75rem; min-width: 0; }
+
+.checkout__aviso {
+  padding: .8rem 1rem;
+  border: 2px solid var(--negro);
+  border-radius: 14px;
+  background: var(--amarillo);
+  font-weight: 700;
+}
+.checkout__aviso:focus { outline: 3px solid var(--negro); outline-offset: 2px; }
+
+/* Carrito vacío */
+.checkout--vacio { display: grid; justify-items: center; gap: 1rem; padding-block: 4rem 5rem; text-align: center; }
+.checkout--vacio .checkout__titulo { margin-bottom: 0; }
+.checkout--vacio > p:not(.checkout__aviso) { color: var(--suave); }
+.checkout__ver {
+  display: inline-flex;
+  align-items: center;
+  min-height: 52px;
+  padding: .8rem 2rem;
+  border-radius: 999px;
+  background: var(--negro);
+  color: var(--amarillo);
+  font-weight: 800;
+  text-decoration: none;
+}
+
+/* Desde 900px: formulario a la izquierda y resumen fijo a la derecha */
+@media (min-width: 900px) {
+  .checkout { padding-block: 2.5rem 5rem; }
+  .checkout__grilla {
+    grid-template-columns: minmax(0, 1fr) minmax(320px, 400px);
+    align-items: start;
+    gap: 2rem;
+  }
+  .checkout__form { grid-column: 1; grid-row: 1; min-width: 0; }
+  .checkout__resumen { grid-column: 2; grid-row: 1; position: sticky; top: 104px; }
+}

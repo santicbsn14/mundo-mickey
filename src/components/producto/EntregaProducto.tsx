@@ -1,5 +1,5 @@
 import { useConfiguracion } from '../../hooks/useConfiguracion.ts'
-import { pesos } from '../../lib/formato.ts'
+import { costoEnvio } from '../../lib/formato.ts'
 import './EntregaProducto.css'
 
 /** Formas de entrega habilitadas en la configuración. Sin configuración, solo el retiro. */
@@ -28,7 +28,7 @@ export default function EntregaProducto() {
           <li>
             <div className="entrega__fila">
               <strong>Envío en San Nicolás</strong>
-              {typeof local.costo === 'number' && <span className="entrega__costo">{pesos(local.costo)}</span>}
+              {typeof local.costo === 'number' && <span className="entrega__costo">{costoEnvio(local.costo)}</span>}
             </div>
             {local.texto?.trim() && <p>{local.texto.trim()}</p>}
           </li>

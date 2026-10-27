@@ -53,7 +53,7 @@ El cliente elige y paga online con Mercado Pago. Después hay tres formas de ent
   - **No se usa Sanity Studio:** todo se carga desde `/admin`.
   - El front lee directo del dataset público.
   - Todas las escrituras pasan por la API, con el token de escritura.
-- **MongoDB Atlas (M0):** pedidos, contador de número de pedido y log de webhooks. El cluster va en **AWS N. Virginia (us-east-1)**, la misma región por defecto de las funciones de Vercel.
+- **MongoDB Atlas (M0):** pedidos, contador de número de pedido y log de webhooks. Cluster `mundo-mickey` en el Atlas del dueño, en **AWS N. Virginia (us-east-1)**, la misma región por defecto de las funciones de Vercel. Base `mundo-mickey-dev` en local y `mundo-mickey` en producción.
 - **Mercado Pago:** Checkout Pro vía Preferences API, con el SDK `mercadopago` para Node.
 - **Local:** `npm run dev` levanta Vite en el puerto 5173 y la API en el 4000. Vite hace proxy de `/api` al 4000, así el front siempre llama a `/api/...` tanto en local como en producción.
 
@@ -113,8 +113,10 @@ Guarda cada notificación de MP recibida y el resultado de procesarla. Sirve par
    - `external_reference` = `_id` del pedido;
    - `payer` con nombre y email;
    - el envío local va como ítem "Envío";
-   - lleva `back_urls`, `auto_return: approved` y `notification_url` armadas con `SITE_URL`.
-3. La API devuelve `init_point` y el front redirige.
+   - lleva `back_urls`, `auto_return: approved` y `notification_url` armadas con `SITE_URL`. **La `notification_url` va solo si `SITE_URL` empieza con `https://`**: Mercado Pago no puede avisarle a localhost.
+   - Si algún producto no existe, está oculto o no tiene stock suficiente, responde **409** con el detalle por ítem y **no crea nada**. El front ajusta el carrito y marca los ítems.
+   - Si falla Mercado Pago al crear la preferencia, el pedido pasa a `cancelado` (con el motivo en `mp.detalle`), responde **502** y el número de pedido queda salteado.
+3. La API devuelve `init_point` y el front redirige. **El carrito no se vacía al redirigir:** se vacía recién cuando `/pago/exito` confirma que el pedido está pagado.
 4. MP avisa por `POST /api/pagos/webhook`. La API:
    - valida la firma `x-signature`;
    - consulta el pago;
@@ -248,6 +250,8 @@ Cada componente lleva su CSS al lado: `Header.tsx` con `Header.css`.
 - **El webhook es la única fuente de verdad del pago.** Las `back_urls` solo muestran un mensaje.
 - **El stock se descuenta recién al aprobarse el pago**, no al crear el pedido. Con este volumen, el riesgo de sobreventa simultánea es mínimo, y si pasa se devuelve desde MP.
 - **Un solo usuario admin**, con credenciales en variables de entorno (`ADMIN_USER` y `ADMIN_PASSWORD_HASH` con bcrypt) y JWT.
+- **Los datos del checkout se guardan en `sessionStorage` (no en `localStorage`):** sobreviven a recargar y a volver desde Mercado Pago, pero no quedan en el navegador al cerrar la pestaña.
+- **Base de desarrollo `mundo-mickey-dev` y de producción `mundo-mickey` en el mismo cluster**, con el mismo usuario: los pedidos de prueba nunca se mezclan con los reales.
 - **El token del admin va en `localStorage` y vence a las 12 horas.** Sin cookies ni sesiones del lado del server. Al abrir el panel se valida con `GET /api/admin/sesion`.
 - **Límite de intentos de login por IP:** 5 fallidos cada 15 minutos. En serverless el contador vive en la memoria de cada instancia, así que es una protección parcial; con una contraseña larga y bcrypt alcanza para este caso.
 - **Borrar un producto no borra sus fotos, para no romper los pedidos:** cada pedido guarda la URL de la imagen del producto. Las fotos que no usa nadie las borra `npm run imagenes:limpiar`.

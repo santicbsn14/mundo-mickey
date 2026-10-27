@@ -1,5 +1,5 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
-import { cargarProductos } from '../hooks/useProductos.ts'
+import { cargarProductos, recargarProductos } from '../hooks/useProductos.ts'
 import type { ImagenSanity, Producto } from '../types/producto.ts'
 
 /** Un producto en el carrito, con los datos que hacen falta para mostrarlo sin volver a pedirlo. */
@@ -12,6 +12,13 @@ export interface ItemCarrito {
   /** La primera imagen del producto (la portada), o `null` si no tiene. */
   imagen: ImagenSanity | null
   cantidad: number
+}
+
+/** Lo que devuelve el 409 del checkout por cada ítem que cambió. */
+export interface ProblemaStock {
+  id: string
+  motivo: 'no_disponible' | 'sin_stock'
+  stockDisponible: number
 }
 
 interface ValorCarrito {
@@ -30,6 +37,11 @@ interface ValorCarrito {
   cerrar: () => void
   /** La sincronización con Sanity quitó o acotó algún ítem. Se borra al cerrar el drawer. */
   actualizado: boolean
+  /**
+   * Después de un 409 del checkout: aplica lo que respondió la API (quita o acota) y vuelve a
+   * sincronizar con los productos pedidos de nuevo.
+   */
+  ajustarStock: (problemas: ProblemaStock[]) => void
 }
 
 const CLAVE = 'mundo-mickey:carrito'
@@ -176,6 +188,33 @@ export function CarritoProvider({ children }: { children: ReactNode }) {
     )
   }, [])
 
+  const ajustarStock = useCallback((problemas: ProblemaStock[]) => {
+    const porId = new Map(problemas.map((p) => [p.id, p]))
+    // Primero lo que dijo la API, que leyó sin CDN: el CDN puede tardar en mostrar el cambio
+    setItems((prev) =>
+      prev.flatMap((i) => {
+        const p = porId.get(i.productoId)
+        if (!p) return [i]
+        const stock = p.motivo === 'no_disponible' ? 0 : Math.max(0, p.stockDisponible)
+        return stock > 0 ? [{ ...i, stock, cantidad: Math.min(i.cantidad, stock) }] : []
+      }),
+    )
+    // Después, los datos nuevos del resto. `sincronizar` solo quita o acota: un CDN atrasado no devuelve lo quitado
+    recargarProductos()
+      .then((productos) =>
+        setItems((prev) =>
+          sincronizar(prev, productos).items.map((i) => {
+            // Un CDN atrasado puede traer más stock del que informó la API: queda el menor
+            const p = porId.get(i.productoId)
+            return p ? { ...i, stock: Math.min(i.stock, p.stockDisponible) } : i
+          }),
+        ),
+      )
+      .catch(() => {
+        // Sin productos: queda lo que dijo la API
+      })
+  }, [])
+
   const vaciar = useCallback(() => setItems([]), [])
   const abrir = useCallback(() => setAbierto(true), [])
   const cerrar = useCallback(() => setAbierto(false), [])
@@ -203,8 +242,9 @@ export function CarritoProvider({ children }: { children: ReactNode }) {
       abrir,
       cerrar,
       actualizado,
+      ajustarStock,
     }
-  }, [items, abierto, actualizado, agregar, cambiarCantidad, quitar, vaciar, abrir, cerrar])
+  }, [items, abierto, actualizado, agregar, cambiarCantidad, quitar, vaciar, abrir, cerrar, ajustarStock])
 
   return <CarritoContext.Provider value={valor}>{children}</CarritoContext.Provider>
 }

@@ -4,12 +4,15 @@ export class ErrorApi extends Error {
   readonly status: number
   /** Mensajes por campo de los formularios (400 de validación). */
   readonly campos: Record<string, string>
+  /** El cuerpo completo de la respuesta, para errores con más datos (como el 409 del checkout). */
+  readonly datos: unknown
 
-  constructor(mensaje: string, status: number, campos: Record<string, string> = {}) {
+  constructor(mensaje: string, status: number, campos: Record<string, string> = {}, datos: unknown = null) {
     super(mensaje)
     this.name = 'ErrorApi'
     this.status = status
     this.campos = campos
+    this.datos = datos
   }
 }
 
@@ -63,7 +66,7 @@ async function pedir<T>(metodo: string, path: string, cuerpo?: unknown): Promise
   if (!res.ok) {
     const { error, campos } = (datos && typeof datos === 'object' ? datos : {}) as { error?: unknown; campos?: unknown }
     const mensaje = typeof error === 'string' ? error : `Algo salió mal (error ${res.status}).`
-    const err = new ErrorApi(mensaje, res.status, campos && typeof campos === 'object' ? (campos as Record<string, string>) : {})
+    const err = new ErrorApi(mensaje, res.status, campos && typeof campos === 'object' ? (campos as Record<string, string>) : {}, datos)
     // Sesión vencida o inválida: se cierra y la protección de rutas lleva al login con ?volver=
     if (res.status === 401 && esAdmin(ruta) && ruta !== '/admin/login') alRechazarSesion?.()
     throw err

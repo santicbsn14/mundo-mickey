@@ -2,6 +2,7 @@ import express from 'express'
 import helmet from 'helmet'
 import health from './routes/health.js'
 import admin from './routes/admin.js'
+import pagos from './routes/pagos.js'
 import { manejarErrores, noEncontrado } from './middlewares/errores.js'
 
 const app = express()
@@ -14,6 +15,7 @@ app.use(express.json())
 
 app.use('/api', health)
 app.use('/api/admin', admin)
+app.use('/api/pagos', pagos)
 
 app.use('/api', noEncontrado)
 app.use(manejarErrores)

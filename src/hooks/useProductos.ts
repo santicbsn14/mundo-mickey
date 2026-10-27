@@ -37,6 +37,13 @@ export function cargarProductos(): Promise<Producto[]> {
   return actual
 }
 
+/** Descarta lo que había y vuelve a pedir los productos (después de un 409 del checkout). */
+export function recargarProductos(): Promise<Producto[]> {
+  promesa = undefined
+  resueltos = undefined
+  return cargarProductos()
+}
+
 /** Productos visibles de la tienda, con estado de carga y reintento. */
 export function useProductos() {
   const [resultado, setResultado] = useState<Estado>(() =>
