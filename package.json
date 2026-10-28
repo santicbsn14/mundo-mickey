@@ -14,7 +14,8 @@
     "seed": "node scripts/seed.js",
     "seed:limpiar": "node scripts/limpiar-seed.js",
     "admin:hash": "node scripts/hash-password.js",
-    "imagenes:limpiar": "node scripts/limpiar-imagenes.js"
+    "imagenes:limpiar": "node scripts/limpiar-imagenes.js",
+    "tunel": "node scripts/tunel.js"
   },
   "dependencies": {
     "@sanity/client": "^8.9.0",

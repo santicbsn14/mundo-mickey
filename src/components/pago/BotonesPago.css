@@ -1,0 +1,32 @@
+.botones-pago {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: .75rem;
+}
+.botones-pago__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1 1 100%;
+  min-height: 52px;
+  padding: .8rem 1.6rem;
+  border: 2px solid var(--negro);
+  border-radius: 999px;
+  font-weight: 800;
+  text-align: center;
+  text-decoration: none;
+  transition: transform .2s var(--ease), background-color .2s;
+}
+.botones-pago__btn--negro { background: var(--negro); color: var(--amarillo); }
+.botones-pago__btn--borde { background: transparent; color: var(--negro); }
+@media (hover: hover) {
+  .botones-pago__btn--borde:hover { background: rgba(0, 0, 0, .08); }
+}
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .botones-pago__btn:hover { transform: translateY(-2px); }
+}
+/* Desde 520px, uno al lado del otro */
+@media (min-width: 520px) {
+  .botones-pago__btn { flex: 0 1 auto; }
+}

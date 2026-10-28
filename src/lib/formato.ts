@@ -9,3 +9,8 @@ export function pesos(n: number): string {
 export function costoEnvio(n: number): string {
   return n === 0 ? 'Gratis' : pesos(n)
 }
+
+/** Número de pedido con 4 dígitos: 7 → "#0007" */
+export function numeroPedido(n: number): string {
+  return `#${String(n).padStart(4, '0')}`
+}

@@ -51,6 +51,7 @@ Si la contraseña tiene caracteres como `@`, `:` o `/`, codificalos (por ejemplo
    | `MONGODB_URI` | la URI `mongodb+srv://` con la base **`mundo-mickey`** (paso 1). No la de desarrollo (`mundo-mickey-dev`) |
    | `SITE_URL` | la URL pública del sitio, sin `/` al final: el **dominio final** (brief 12), o mientras tanto la del proyecto (`https://mundo-mickey.vercel.app`). Arma las `back_urls` y la `notification_url` de Mercado Pago, que solo se manda si empieza con `https://` |
    | `MP_ACCESS_TOKEN` | el Access Token **de producción de la cuenta real de Mercado Pago del dueño** (Tus integraciones → la aplicación → Credenciales de producción). No el de la cuenta de prueba que se usa en local. Es secreto: nunca con `VITE_` |
+   | `MP_WEBHOOK_SECRET` | la **clave secreta de los webhooks en modo productivo** (ver "Webhooks en producción" en "Probar pagos en la PC"). No la de modo prueba que se usa en local. Sin ella, el webhook responde 500 y Mercado Pago reintenta |
    | `VITE_SANITY_PROJECT_ID` | `de0zicdv` |
    | `VITE_SANITY_DATASET` | `production` |
    | `SANITY_PROJECT_ID` | `de0zicdv` |
@@ -118,3 +119,84 @@ Para ver la tienda o el panel de desarrollo en un celular real (deslizar la gale
    npx sanity@latest cors list --project-id de0zicdv
    ```
    Tienen que quedar solo `http://localhost:5173` y `http://localhost:5174`.
+
+## Probar pagos en la PC
+
+Mercado Pago no llega a `localhost`: para que mande el webhook y vuelva a `/pago/exito` hace falta una URL **https** pública que apunte a la PC. Se usa un **Cloudflare Quick Tunnel** (gratis, sin cuenta).
+
+### Una sola vez
+
+1. **`cloudflared`:** el ejecutable portable para Windows, **sin instalador**, de los releases oficiales de Cloudflare: [cloudflared-windows-amd64.exe](https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-windows-amd64.exe). Guardalo como `C:UsersAdminProyectosMundo Mickeyherramientascloudflared.exe` (fuera del repo: **no se commitea**).
+2. **Cuentas de prueba:** en [mercadopago.com.ar/developers](https://www.mercadopago.com.ar/developers) → **Tus integraciones** → la aplicación → **Cuentas de prueba**, tienen que estar la **vendedor** (su Access Token de producción va en `MP_ACCESS_TOKEN` del `.env`) y la **comprador** (con ella se paga). Anotá usuario y contraseña de la comprador: se usan para entrar al checkout.
+
+### Cada vez que probás
+
+1. **Levantá todo:** `npm run dev` (Vite + API). Fijate en qué puerto quedó Vite (5173, o 5174 si el 5173 está ocupado).
+2. **Levantá el túnel** en otra terminal:
+   ```bash
+   npm run tunel           # apunta a http://localhost:5173
+   npm run tunel -- 5174   # si Vite está en el 5174
+   ```
+   Esperá la línea `➜  SITE_URL=https://xxxx-xxxx.trycloudflare.com`. **La URL cambia en cada corrida.** El túnel apunta a Vite, que ya le pasa `/api` a la API, así que el webhook entra por el mismo lado. Vite acepta los hosts `.trycloudflare.com` (`server.allowedHosts` en `vite.config.ts`, solo en desarrollo).
+3. **`SITE_URL`:** poné esa URL en el `.env` (`SITE_URL=https://xxxx-xxxx.trycloudflare.com`, sin `/` al final) y **reiniciá la API** (cortá y volvé a correr `npm run dev`). Con https, la preferencia ya lleva la `notification_url` (`<SITE_URL>/api/pagos/webhook?source_news=webhooks`).
+4. **CORS de Sanity:** el catálogo se lee desde el navegador, así que sumá el origen del túnel (si no, la tienda dice "No pudimos cargar los productos."):
+   ```bash
+   npx sanity@latest cors add https://xxxx-xxxx.trycloudflare.com --no-credentials --project-id de0zicdv
+   ```
+5. **Webhook en modo prueba** (la URL cambió, así que hay que actualizarla cada vez): [mercadopago.com.ar/developers](https://www.mercadopago.com.ar/developers) → **Tus integraciones** → la aplicación → **Webhooks** → **Configurar notificaciones** → pestaña **Modo prueba**:
+   - URL: `https://xxxx-xxxx.trycloudflare.com/api/pagos/webhook`;
+   - evento: **Pagos**;
+   - guardá y copiá la **clave secreta** a `.env` como `MP_WEBHOOK_SECRET=…` (sin comillas) y reiniciá la API. Si la clave cambia (o la regenerás), actualizala en el `.env`.
+   - Si usás "Simular notificación" con un id de pago que no existe, la API lo registra como `ignorado` y responde 200.
+6. **Comprá desde la URL del túnel** (no desde `localhost`): el carrito y los datos del checkout se guardan por origen, y Mercado Pago vuelve al túnel. Pagá logueado con la **cuenta de prueba comprador** y una tarjeta de prueba (abajo).
+7. **Revisá:** el pedido en `mundo-mickey-dev` (`estado`, `mp`, `stockDescontado`, `notaInterna`), el stock en Sanity y la colección `eventowebhooks` (cada notificación con su `resultado`).
+
+### Al terminar
+
+1. `SITE_URL=http://localhost:5173` de vuelta en el `.env` y reiniciá la API.
+2. Sacá el origen del túnel de los CORS de Sanity:
+   ```bash
+   npx sanity@latest cors delete https://xxxx-xxxx.trycloudflare.com --project-id de0zicdv
+   npx sanity@latest cors list --project-id de0zicdv
+   ```
+   Tienen que quedar solo `http://localhost:5173` y `http://localhost:5174`.
+3. Cortá el túnel (Ctrl+C). Borrá los pedidos, los `eventowebhooks` y el contador (`counters`, `_id: "pedido"`) de `mundo-mickey-dev`, y dejá el stock como el seed (`npm run seed`).
+
+### Tarjetas de prueba (Argentina)
+
+Tabla vigente de la [documentación de Mercado Pago Argentina](https://www.mercadopago.com.ar/developers/es/docs/your-integrations/test/cards). Cualquier tarjeta sirve con cualquier resultado: **el resultado lo decide el nombre del titular**.
+
+| Tipo | Marca | Número | Código de seguridad | Vencimiento |
+|---|---|---|---|---|
+| Crédito | Mastercard | 5031 7557 3453 0604 | 123 | 11/30 |
+| Crédito | Visa | 4509 9535 6623 3704 | 123 | 11/30 |
+| Crédito | American Express | 3711 803032 57522 | 1234 | 11/30 |
+| Débito | Mastercard | 5287 3383 1025 3304 | 123 | 11/30 |
+| Débito | Visa | 4002 7686 9439 5619 | 123 | 11/30 |
+
+| Resultado | Nombre y apellido del titular | Documento |
+|---|---|---|
+| Pago aprobado | `APRO` | DNI 12345678 |
+| Rechazado por error general | `OTHE` | DNI 12345678 |
+| Pendiente de pago | `CONT` | — |
+| Rechazado con validación para autorizar | `CALL` | — |
+| Rechazado por importe insuficiente | `FUND` | — |
+| Rechazado por código de seguridad inválido | `SECU` | — |
+| Rechazado por fecha de vencimiento | `EXPI` | — |
+| Rechazado por error de formulario | `FORM` | — |
+
+Para probar un rechazo y después el pago: pagá con `OTHE`, y en la misma pantalla de Mercado Pago reintentá con `APRO` (o volvé desde `/pago/error` con "Volver a intentar", que arma un pedido nuevo).
+
+### Si el túnel no levanta
+
+| Síntoma | Qué hacer |
+|---|---|
+| `lookup api.trycloudflare.com: no such host` | El DNS de la red no resuelve `trycloudflare.com` (algunos routers y proveedores lo bloquean; pasa en la red de la PC de Santiago). Cambiá el DNS del adaptador de red de Windows a `1.1.1.1` y `1.0.0.1` (Configuración → Red e Internet → la conexión → Asignación de servidor DNS → Manual), o probá desde otra red (por ejemplo, compartiendo internet del celular). |
+| `Blocked request. This host (…) is not allowed` | Vite no tiene `.trycloudflare.com` en `server.allowedHosts`, o el túnel apunta a otro servidor. |
+| El webhook no llega | Que la URL de **Modo prueba** en Webhooks sea la del túnel actual, y que `SITE_URL` también (y la API reiniciada). En `eventowebhooks` se ve si llegó y con qué resultado. |
+| `firma_invalida` en `eventowebhooks` | `MP_WEBHOOK_SECRET` no es la clave de **Modo prueba** de esa aplicación, o no se reinició la API después de cambiarla. |
+| Responde 500 "Webhook sin configurar." | Falta `MP_WEBHOOK_SECRET` en el `.env`. |
+
+### Webhooks en producción (brief 12)
+
+La misma configuración, en la pestaña **Modo productivo**, en la aplicación de la **cuenta real del dueño**: URL `https://<dominio final>/api/pagos/webhook`, evento **Pagos**. Su **clave secreta** va en `MP_WEBHOOK_SECRET` de Vercel (Production y Preview) y después hay que hacer **Redeploy**. La de modo prueba no sirve en producción.

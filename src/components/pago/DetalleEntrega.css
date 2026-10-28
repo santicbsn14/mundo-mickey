@@ -1,0 +1,14 @@
+.detalle-entrega {
+  display: grid;
+  gap: .75rem;
+  width: 100%;
+  margin: .25rem 0 0;
+  padding: 1rem 1.25rem;
+  border-radius: 16px;
+  background: var(--blanco);
+  color: var(--negro);
+  text-align: left;
+}
+.detalle-entrega dt { font-weight: 800; }
+.detalle-entrega dd { margin: 0; }
+.detalle-entrega__horarios { white-space: pre-line; }

@@ -137,7 +137,7 @@ Guarda cada notificación de MP recibida y el resultado de procesarla. Sirve par
 | GET | `/api/health` | estado de la API y de la DB |
 | POST | `/api/pagos/checkout` | crea el pedido y la preferencia |
 | POST | `/api/pagos/webhook` | notificaciones de MP |
-| GET | `/api/pedidos/:id/estado` | estado público mínimo (número, estado y tipo de entrega) |
+| GET | `/api/pedidos/:id/estado` | estado público mínimo (número, estado y tipo de entrega), sin datos personales ni montos; 404 con id inválido o inexistente; 30 por IP por minuto. **Reconciliación:** con `?pago=<payment_id>` (lo agrega Mercado Pago a las `back_urls`), si el pedido sigue en `pendiente_pago` y ese pago es de este pedido (`external_reference`), lo procesa igual que el webhook antes de responder |
 
 **Admin** (requieren JWT, salvo el login)
 | Método | Ruta | Uso |
@@ -248,6 +248,8 @@ Cada componente lleva su CSS al lado: `Header.tsx` con `Header.css`.
 - **Contacto con el comprador desde el panel con links `wa.me` y `mailto`**, sin integración de mensajería.
 - **Checkout Pro vía Preferences:** tiene SDK completo en Node y mucha más documentación que la vía Orders.
 - **El webhook es la única fuente de verdad del pago.** Las `back_urls` solo muestran un mensaje.
+- **La preferencia vence a las 24 horas** (`expires` y `expiration_date_to`): un link de pago abandonado no sirve para pagar días después, cuando el precio o el stock pueden haber cambiado.
+- **Sin pagos en efectivo** (`ticket` y `atm` excluidos de la preferencia): con poco stock, un pago en Rapipago o Pago Fácil que se acredita días después puede caer cuando el producto ya se vendió. Se aceptan tarjetas, dinero en cuenta y los demás medios.
 - **El stock se descuenta recién al aprobarse el pago**, no al crear el pedido. Con este volumen, el riesgo de sobreventa simultánea es mínimo, y si pasa se devuelve desde MP.
 - **Un solo usuario admin**, con credenciales en variables de entorno (`ADMIN_USER` y `ADMIN_PASSWORD_HASH` con bcrypt) y JWT.
 - **Los datos del checkout se guardan en `sessionStorage` (no en `localStorage`):** sobreviven a recargar y a volver desde Mercado Pago, pero no quedan en el navegador al cerrar la pestaña.

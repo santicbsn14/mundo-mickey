@@ -1,6 +1,6 @@
 import { Router } from 'express'
 import rateLimit from 'express-rate-limit'
-import { checkout } from '../controllers/pagos.js'
+import { checkout, webhook } from '../controllers/pagos.js'
 
 const router = Router()
 
@@ -15,5 +15,7 @@ const limitePedidos = rateLimit({
 })
 
 router.post('/checkout', limitePedidos, checkout)
+// Sin límite ni login: lo protege la firma de Mercado Pago
+router.post('/webhook', webhook)
 
 export default router
