@@ -411,13 +411,13 @@ function Eliminar({ producto, alEliminar }: { producto: ProductoAdmin; alElimina
 
       <dialog
         ref={dialogo}
-        className="fp__dialogo"
+        className="adm-dialogo"
         aria-labelledby="fp-eliminar-titulo"
         onCancel={(e) => {
           if (eliminando) e.preventDefault()
         }}
       >
-        <h2 id="fp-eliminar-titulo" className="fp__dialogo-titulo">
+        <h2 id="fp-eliminar-titulo" className="adm-dialogo-titulo">
           ¿Eliminar «{producto.nombre}»?
         </h2>
         <p>
@@ -428,7 +428,7 @@ function Eliminar({ producto, alEliminar }: { producto: ProductoAdmin; alElimina
             {error}
           </div>
         )}
-        <div className="fp__dialogo-botones">
+        <div className="adm-dialogo-botones">
           <button type="button" className="adm-btn" autoFocus disabled={eliminando} onClick={() => dialogo.current?.close()}>
             Cancelar
           </button>

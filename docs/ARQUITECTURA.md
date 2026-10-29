@@ -96,6 +96,7 @@ seguimiento?: { empresa, codigo }
 notaInterna?: String
 mp: { preferenciaId, pagoId, estadoPago, detalle }
 stockDescontado: Boolean (idempotencia del webhook)
+stockRepuesto: Boolean (al cancelar desde el panel se devolvió el stock, una sola vez)
 historial: [{ estado, fecha }]
 createdAt, updatedAt
 ```
@@ -113,17 +114,23 @@ Guarda cada notificación de MP recibida y el resultado de procesarla. Sirve par
    - `external_reference` = `_id` del pedido;
    - `payer` con nombre y email;
    - el envío local va como ítem "Envío";
-   - lleva `back_urls`, `auto_return: approved` y `notification_url` armadas con `SITE_URL`. **La `notification_url` va solo si `SITE_URL` empieza con `https://`**: Mercado Pago no puede avisarle a localhost.
+   - lleva `back_urls`, `auto_return: approved` y `notification_url` armadas con `SITE_URL`. **La `notification_url` va solo si `SITE_URL` empieza con `https://`**: Mercado Pago no puede avisarle a localhost. Lleva `?source_news=webhooks`, para que Mercado Pago mande solo Webhooks (firmados) y no notificaciones IPN, que llegan sin firma.
+   - vence a las 24 horas y excluye los pagos en efectivo (ver "Decisiones tomadas").
    - Si algún producto no existe, está oculto o no tiene stock suficiente, responde **409** con el detalle por ítem y **no crea nada**. El front ajusta el carrito y marca los ítems.
    - Si falla Mercado Pago al crear la preferencia, el pedido pasa a `cancelado` (con el motivo en `mp.detalle`), responde **502** y el número de pedido queda salteado.
 3. La API devuelve `init_point` y el front redirige. **El carrito no se vacía al redirigir:** se vacía recién cuando `/pago/exito` confirma que el pedido está pagado.
-4. MP avisa por `POST /api/pagos/webhook`. La API:
-   - valida la firma `x-signature`;
-   - consulta el pago;
-   - si está `approved`, hace un update atómico del pedido de `pendiente_pago` a `pagado` y descuenta el stock en Sanity;
+4. MP avisa por `POST /api/pagos/webhook`. La API (`procesarPago` en `server/lib/pagos.js`):
+   - valida la firma `x-signature` (sin firma válida, 401 sin consultar nada);
+   - consulta el pago y busca el pedido por su `external_reference`;
+   - **valida monto y moneda:** si `transaction_amount` no es el total del pedido o la moneda no es `ARS`, no lo marca pagado y lo anota;
+   - si está `approved`, hace un update atómico del pedido de `pendiente_pago` a `pagado` y descuenta el stock en Sanity en **una sola transacción con `transactionId` fijo por pedido** (`descuento-stock-<pedidoId>`). Sanity rechaza un `transactionId` repetido, así que el descuento se aplica una sola vez aunque lleguen dos notificaciones a la vez o se reintente después de un corte; además queda `stockDescontado: true`;
    - **recién después responde 200.** En serverless no se puede responder primero y seguir procesando. Si algo falla, responde 500 para que MP reintente.
    - Si el pedido ya estaba pagado, no hace nada y responde 200.
+   - Registra cada notificación en `EventoWebhook`.
+   - **Notas automáticas:** lo que el dueño tiene que mirar (sobreventa, producto eliminado, monto que no coincide, un segundo pago aprobado, devoluciones o contracargos, un pago aprobado para un pedido cancelado) se suma como una línea con fecha en `notaInterna` (`anotar()`), sin repetirse. El panel resalta las líneas con "Revisar" o "Sobreventa".
 5. La página `/pago/exito` consulta `GET /api/pedidos/:id/estado` para mostrar el estado real. Si el envío es nacional, aclara que lo van a contactar por WhatsApp para coordinarlo. **La vuelta del cliente a esa página no confirma nada.**
+   - **Reconciliación:** la página manda el `payment_id` de la vuelta como `?pago=`. Si el pedido sigue `pendiente_pago` y ese pago es de este pedido (`external_reference`), la API lo procesa igual que el webhook antes de responder. Así el pedido se confirma aunque el webhook se demore; el que llegue segundo no hace nada.
+6. Desde el panel, el dueño pasa el pedido a enviado o entregado, o lo cancela (con la opción de devolver el stock). **Nunca lo marca como pagado.**
 
 ## Subida de imágenes
 - Vercel corta los requests de más de **4,5 MB**, y las fotos del celular suelen pasarlo. Por eso **el navegador achica cada foto antes de subirla**: con un canvas la lleva a 1600px de lado mayor y la convierte a JPEG o WebP con calidad de alrededor de 0,85. Queda en unos cientos de KB.
@@ -144,9 +151,9 @@ Guarda cada notificación de MP recibida y el resultado de procesarla. Sirve par
 |---|---|---|
 | POST | `/api/admin/login` | devuelve JWT (12 horas) |
 | GET | `/api/admin/sesion` | valida el token guardado: usuario y vencimiento |
-| GET | `/api/admin/pedidos?estado=&q=` | listado |
-| GET | `/api/admin/pedidos/:id` | detalle completo |
-| PATCH | `/api/admin/pedidos/:id` | estado, seguimiento y nota interna |
+| GET | `/api/admin/pedidos?estado=&q=&pagina=` | listado, más nuevo primero, de a 20. `estado`: uno del modelo, varios separados por coma (`cancelado,rechazado`) o `todos`; sin `estado`, `pagado`. `q`: número (`7`, `0007`, `#0007`), nombre o apellido (sin importar mayúsculas ni tildes), email, DNI o celular (por dígitos). Responde `{ pedidos, total, pagina, paginas, conteos }`: cada pedido con lo de la tarjeta (y `revisar`), y `conteos` por estado con la búsqueda pero sin el filtro de estado |
+| GET | `/api/admin/pedidos/:id` | detalle completo (sin `__v`); 404 si no existe o el id es inválido |
+| PATCH | `/api/admin/pedidos/:id` | `{ estado?, seguimiento?, notaInterna?, reponerStock? }`. Estados: entre `pagado`, `enviado` y `entregado` en cualquier dirección, y `pendiente_pago`/`pagado` → `cancelado`; nunca de un pedido sin cobrar a `pagado` (400). Cada cambio suma al `historial`. `reponerStock` al cancelar un pagado: devuelve el stock en una transacción de Sanity con `transactionId` `reposicion-stock-<pedidoId>` (una sola vez) y marca `stockRepuesto`. `seguimiento` `{ empresa, codigo }` (vacíos lo quitan); `notaInterna` reemplaza la nota (hasta 2000). 400 `{ error, campos }`; 409 si el estado cambió mientras tanto; responde el pedido actualizado |
 | GET | `/api/admin/productos` | todos, también los ocultos (lectura sin CDN) |
 | GET | `/api/admin/productos/:id` | uno, con la misma forma |
 | POST | `/api/admin/productos` | crear |
@@ -190,7 +197,7 @@ mundo-mickey/
 │   │   ├── carrito/  (CarritoDrawer, ItemCarrito)
 │   │   ├── checkout/
 │   │   ├── pago/
-│   │   └── admin/    (AdminLayout, TablaPedidos, FormProducto, SubidorImagenes, ...)
+│   │   └── admin/    (AdminLayout, ListaPedidos, DetallePedido, FormProducto, SubidorImagenes, ...)
 │   ├── pages/
 │   │   └── admin/
 │   ├── context/      (CarritoContext, AuthAdminContext)
@@ -208,6 +215,7 @@ mundo-mickey/
 │   └── referencia/ (maqueta.html, logo.png)
 ├── scripts/              (seed.js: carga productos de prueba; limpiar-seed.js: los borra;
 │                          hash-password.js: hash de la contraseña del admin;
+│                          pedidos-prueba.js: pedidos inventados para probar el panel, solo en la base -dev;
 │                          limpiar-imagenes.js: borra las imágenes sin usar de más de 24 h)
 ├── index.html
 ├── vite.config.ts
@@ -248,6 +256,8 @@ Cada componente lleva su CSS al lado: `Header.tsx` con `Header.css`.
 - **Contacto con el comprador desde el panel con links `wa.me` y `mailto`**, sin integración de mensajería.
 - **Checkout Pro vía Preferences:** tiene SDK completo en Node y mucha más documentación que la vía Orders.
 - **El webhook es la única fuente de verdad del pago.** Las `back_urls` solo muestran un mensaje.
+- **Desde el panel nunca se marca un pedido como pagado: solo Mercado Pago.** El panel puede corregir entre "a preparar", enviado y entregado (un pedido ya cobrado), pero un pedido pendiente no pasa a pagado a mano.
+- **Cancelar no devuelve el dinero; la devolución se hace desde Mercado Pago.** Al cancelar un pedido pagado, el panel ofrece devolver los productos al stock.
 - **La preferencia vence a las 24 horas** (`expires` y `expiration_date_to`): un link de pago abandonado no sirve para pagar días después, cuando el precio o el stock pueden haber cambiado.
 - **Sin pagos en efectivo** (`ticket` y `atm` excluidos de la preferencia): con poco stock, un pago en Rapipago o Pago Fácil que se acredita días después puede caer cuando el producto ya se vendió. Se aceptan tarjetas, dinero en cuenta y los demás medios.
 - **El stock se descuenta recién al aprobarse el pago**, no al crear el pedido. Con este volumen, el riesgo de sobreventa simultánea es mínimo, y si pasa se devuelve desde MP.

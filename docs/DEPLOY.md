@@ -120,6 +120,10 @@ Para ver la tienda o el panel de desarrollo en un celular real (deslizar la gale
    ```
    Tienen que quedar solo `http://localhost:5173` y `http://localhost:5174`.
 
+## Pedidos de prueba
+
+`npm run pedidos:prueba` crea 10 pedidos inventados (todos los estados, con los productos del catálogo y sin tocar el stock) para probar el panel; `npm run pedidos:prueba -- --borrar` borra todos los pedidos y el contador. **Solo corre si la base de `MONGODB_URI` termina en `-dev`.**
+
 ## Probar pagos en la PC
 
 Mercado Pago no llega a `localhost`: para que mande el webhook y vuelva a `/pago/exito` hace falta una URL **https** pública que apunte a la PC. Se usa un **Cloudflare Quick Tunnel** (gratis, sin cuenta).

@@ -37,6 +37,9 @@
 
 .admin-barra__nav a {
   flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
   padding: .35rem .9rem;
   border: 2px solid var(--linea-clara);
   border-radius: 999px;
@@ -57,6 +60,7 @@
 
 .admin-barra__salir {
   flex-shrink: 0;
+  min-height: 44px;
   padding: .35rem .9rem;
   border: 2px solid transparent;
   border-radius: 999px;
@@ -313,3 +317,70 @@ fieldset.campo > legend { padding: 0; margin-bottom: .4rem; }
   .adm-barra-guardar { margin-inline: 0; padding-inline: 0; }
   .adm-barra-guardar .adm-guardar { justify-self: end; width: auto; min-width: 16rem; }
 }
+
+/* ---------- Diálogos (<dialog>) ---------- */
+
+.adm-dialogo {
+  width: min(420px, calc(100% - 2rem));
+  padding: 1.5rem;
+  border: 2px solid var(--negro);
+  border-radius: var(--radio);
+  background: var(--blanco);
+  color: var(--negro);
+}
+.adm-dialogo::backdrop { background: rgba(0, 0, 0, .6); }
+.adm-dialogo p { margin-top: .75rem; }
+.adm-dialogo .adm-alerta { margin-top: 1rem; }
+.adm-dialogo-titulo { font-weight: 800; font-size: 1.3rem; line-height: 1.2; overflow-wrap: anywhere; }
+.adm-dialogo-botones {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: .6rem;
+  margin-top: 1.25rem;
+}
+
+/* Aviso corto después de guardar: fijo abajo, se va solo */
+.adm-toast {
+  position: fixed;
+  left: 50%;
+  bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
+  z-index: 40;
+  transform: translateX(-50%);
+  width: max-content;
+  max-width: calc(100% - 2rem);
+  padding: .75rem 1.25rem;
+  border: 2px solid var(--negro);
+  border-radius: 999px;
+  background: var(--amarillo);
+  font-weight: 800;
+  text-align: center;
+}
+
+/* Texto solo para lectores de pantalla */
+.adm-oculto {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* Cantidad de pedidos a preparar, en el link "Pedidos" */
+.admin-barra__badge {
+  display: inline-grid;
+  place-items: center;
+  min-width: 1.5rem;
+  height: 1.5rem;
+  margin-left: .4rem;
+  padding-inline: .35rem;
+  border-radius: 999px;
+  background: var(--amarillo);
+  color: var(--negro);
+  font-size: .85rem;
+  font-weight: 800;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+/* En el link activo (amarillo) se invierte */
+.admin-barra__nav a.active .admin-barra__badge { background: var(--negro); color: var(--amarillo); }

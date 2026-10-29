@@ -36,21 +36,3 @@
 }
 .fp__eliminar > .adm-btn { margin-left: -.5rem; color: var(--negro); }
 
-.fp__dialogo {
-  width: min(420px, calc(100% - 2rem));
-  padding: 1.5rem;
-  border: 2px solid var(--negro);
-  border-radius: var(--radio);
-  background: var(--blanco);
-  color: var(--negro);
-}
-.fp__dialogo::backdrop { background: rgba(0, 0, 0, .6); }
-.fp__dialogo p { margin-top: .75rem; }
-.fp__dialogo .adm-alerta { margin-top: 1rem; }
-.fp__dialogo-titulo { font-weight: 800; font-size: 1.3rem; line-height: 1.2; overflow-wrap: anywhere; }
-.fp__dialogo-botones {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: .6rem;
-  margin-top: 1.25rem;
-}

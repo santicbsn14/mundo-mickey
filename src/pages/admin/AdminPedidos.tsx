@@ -1,7 +1,9 @@
+import ListaPedidos from '../../components/admin/ListaPedidos.tsx'
+
 export default function AdminPedidos() {
   return (
-    <section className="contenedor placeholder">
-      <h1>Pedidos</h1>
-    </section>
+    <div className="contenedor">
+      <ListaPedidos />
+    </div>
   )
 }

@@ -1,7 +1,10 @@
-import { Suspense, useRef } from 'react'
+import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Navigate, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { useAuthAdmin } from '../../context/AuthAdminContext.tsx'
+import { apiGet } from '../../lib/api.ts'
+import type { ListadoPedidos } from '../../lib/pedidosAdmin.ts'
 import CargandoPanel from './CargandoPanel.tsx'
+import type { ContextoPanel } from './contextoPanel.ts'
 import './AdminLayout.css'
 
 /** `/admin/login?volver=<ruta>`, con las `/` sin codificar para que se lea. */
@@ -16,6 +19,21 @@ export default function AdminLayout() {
   const { estado, logout } = useAuthAdmin()
   // "Salir" va al login sin ?volver=
   const saliendo = useRef(false)
+
+  // Pedidos "A preparar", para el número del link "Pedidos"
+  const [aPreparar, setAPreparar] = useState(0)
+  const refrescarAPreparar = useCallback(() => {
+    apiGet<ListadoPedidos>('/admin/pedidos?estado=pagado')
+      .then((r) => setAPreparar(r.conteos.pagado))
+      .catch(() => {
+        // Sin el número no pasa nada: se vuelve a pedir al entrar al listado
+      })
+  }, [])
+  const logueado = estado === 'logueado'
+  useEffect(() => {
+    if (logueado) refrescarAPreparar()
+  }, [logueado, refrescarAPreparar])
+  const contexto = useMemo<ContextoPanel>(() => ({ setAPreparar, refrescarAPreparar }), [refrescarAPreparar])
 
   if (estado === 'verificando') return <CargandoPanel />
   if (estado === 'deslogueado') {
@@ -44,6 +62,12 @@ export default function AdminLayout() {
               aria-current={enPedidos ? 'page' : undefined}
             >
               Pedidos
+              {aPreparar > 0 && (
+                <span className="admin-barra__badge">
+                  {aPreparar}
+                  <span className="adm-oculto"> a preparar</span>
+                </span>
+              )}
             </NavLink>
             <NavLink to="/admin/productos">Productos</NavLink>
             <NavLink to="/admin/configuracion">Configuración</NavLink>
@@ -55,7 +79,7 @@ export default function AdminLayout() {
       </header>
       <main className="admin-main">
         <Suspense fallback={<CargandoPanel />}>
-          <Outlet />
+          <Outlet context={contexto} />
         </Suspense>
       </main>
     </>

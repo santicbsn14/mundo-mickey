@@ -1,0 +1,21 @@
+.contacto__nombre { font-weight: 800; font-size: 1.3rem; line-height: 1.2; overflow-wrap: anywhere; }
+.contacto__email { overflow-wrap: anywhere; }
+
+.contacto__whatsapp {
+  display: grid;
+  gap: .6rem;
+  margin-top: .5rem;
+  padding: .85rem;
+  border: 2px solid rgba(0, 0, 0, .15);
+  border-radius: 14px;
+}
+.contacto__restaurar { justify-self: start; margin-left: -.5rem; font-size: .95rem; }
+
+/* Botones grandes: WhatsApp a todo el ancho, Email y Llamar debajo */
+.contacto__botones {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: .5rem;
+}
+.contacto__boton { min-height: 52px; font-size: 1.05rem; }
+.contacto__boton:first-child { grid-column: 1 / -1; }

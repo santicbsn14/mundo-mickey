@@ -6,6 +6,7 @@ import { login, sesion } from '../controllers/adminSesion.js'
 import * as productos from '../controllers/adminProductos.js'
 import { subirImagen } from '../controllers/adminImagenes.js'
 import * as configuracion from '../controllers/adminConfiguracion.js'
+import * as pedidos from '../controllers/adminPedidos.js'
 
 const router = Router()
 
@@ -26,6 +27,10 @@ router.post('/login', limiteLogin, login)
 router.use(requiereAdmin)
 
 router.get('/sesion', sesion)
+
+router.get('/pedidos', pedidos.listar)
+router.get('/pedidos/:id', pedidos.ver)
+router.patch('/pedidos/:id', pedidos.editar)
 
 router.get('/productos', productos.listar)
 router.patch('/productos/orden', productos.reordenar)

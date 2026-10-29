@@ -62,6 +62,8 @@ const pedidoSchema = new Schema(
     },
     /** Idempotencia del webhook: el stock se descuenta una sola vez. */
     stockDescontado: { type: Boolean, default: false },
+    /** Al cancelar desde el panel: el stock se devolvió (una sola vez). */
+    stockRepuesto: { type: Boolean, default: false },
   },
   { timestamps: true },
 )

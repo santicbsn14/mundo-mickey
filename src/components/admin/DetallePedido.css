@@ -1,0 +1,136 @@
+.dp { display: grid; gap: 1rem; }
+
+.dp__volver { justify-self: start; margin-left: -.5rem; }
+
+/* Alerta de "Revisar" / "Sobreventa", arriba de todo */
+.dp__revisar { display: grid; gap: .35rem; }
+.dp__revisar-titulo { font-weight: 800; font-size: 1.1rem; }
+.dp__revisar ul { display: grid; gap: .25rem; padding-left: 1.1rem; overflow-wrap: anywhere; }
+
+.dp__cabecera { display: flex; flex-wrap: wrap; align-items: center; gap: .4rem .75rem; }
+.dp__numero {
+  font-weight: 800;
+  font-size: clamp(1.8rem, 7vw, 2.4rem);
+  line-height: 1.05;
+  letter-spacing: -.02em;
+  font-variant-numeric: tabular-nums;
+}
+.dp__fecha { flex-basis: 100%; color: var(--suave); font-weight: 600; }
+
+/* Celular: una columna, con las secciones en el orden de lectura del dueño */
+.dp__columnas { display: flex; flex-direction: column; gap: 1rem; }
+.dp__columna { display: contents; }
+.dp__seccion--comprador { order: 1; }
+.dp__seccion--entrega { order: 2; }
+.dp__seccion--productos { order: 3; }
+.dp__seccion--pago { order: 4; }
+.dp__seccion--acciones { order: 5; }
+.dp__seccion--seguimiento { order: 6; }
+.dp__seccion--nota { order: 7; }
+.dp__seccion--historial { order: 8; }
+
+.dp__seccion {
+  display: grid;
+  gap: .75rem;
+  align-content: start;
+  min-width: 0;
+  padding: 1rem;
+  border: 2px solid var(--negro);
+  border-radius: 16px;
+  background: var(--blanco);
+}
+.dp__subtitulo {
+  color: var(--suave);
+  font-size: .85rem;
+  font-weight: 800;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+.dp__rotulo-dato { color: var(--suave); font-size: .9rem; font-weight: 700; }
+
+/* Pares dato / valor */
+.dp__datos { display: grid; gap: .5rem; margin: 0; }
+.dp__datos > div { display: grid; grid-template-columns: 5.5rem minmax(0, 1fr); gap: .75rem; align-items: baseline; }
+.dp__datos dt { color: var(--suave); font-weight: 600; }
+.dp__datos dd { margin: 0; font-weight: 700; overflow-wrap: anywhere; }
+
+.dp__pago-id { display: flex; flex-wrap: wrap; align-items: center; gap: .25rem .6rem; font-variant-numeric: tabular-nums; }
+
+@media (min-width: 600px) { .dp__datos > div { grid-template-columns: 7.5rem minmax(0, 1fr); } }
+
+/* Entrega */
+.dp__tipo-entrega { font-weight: 800; font-size: 1.1rem; }
+.dp__direccion { font-style: normal; font-weight: 600; line-height: 1.45; overflow-wrap: anywhere; }
+.dp__notas {
+  display: grid;
+  gap: .2rem;
+  padding: .75rem;
+  border-left: 4px solid var(--amarillo);
+  background: rgba(0, 0, 0, .04);
+  border-radius: 0 10px 10px 0;
+  overflow-wrap: anywhere;
+}
+
+/* Copiar al portapapeles */
+.copiar { display: grid; gap: .5rem; }
+.copiar > .adm-btn { justify-self: stretch; }
+.copiar__chico { min-height: 44px; padding-inline: .85rem; font-size: .95rem; }
+.copiar:has(.copiar__chico) { display: inline-grid; }
+.copiar__manual { display: grid; gap: .35rem; font-weight: 600; }
+.copiar__manual .campo__input { font-family: inherit; min-height: 0; }
+
+/* Productos */
+.dp__items { display: grid; gap: .75rem; padding: 0; list-style: none; }
+.dp__item { display: grid; grid-template-columns: 56px minmax(0, 1fr) auto; gap: .75rem; align-items: center; }
+.dp__item-foto {
+  display: grid;
+  place-items: center;
+  width: 56px;
+  aspect-ratio: 1;
+  border-radius: 10px;
+  object-fit: cover;
+  background: rgba(0, 0, 0, .06);
+}
+.dp__item-foto--vacia { border: 2px solid var(--negro); background: var(--amarillo); font-size: 1.3rem; }
+.dp__item-nombre { font-weight: 700; line-height: 1.25; overflow-wrap: anywhere; }
+.dp__item-cantidad { color: var(--suave); font-weight: 600; font-variant-numeric: tabular-nums; }
+.dp__item-subtotal { font-weight: 800; font-variant-numeric: tabular-nums; }
+
+.dp__montos { display: grid; gap: .3rem; margin: 0; padding-top: .75rem; border-top: 2px solid rgba(0, 0, 0, .12); }
+.dp__montos > div { display: flex; justify-content: space-between; gap: 1rem; }
+.dp__montos dt { color: var(--suave); font-weight: 600; }
+.dp__montos dd { margin: 0; font-weight: 700; font-variant-numeric: tabular-nums; }
+.dp__total { font-size: 1.2rem; }
+.dp__total dt,
+.dp__total dd { color: var(--negro); font-weight: 800; }
+
+/* Formularios de seguimiento y nota */
+.dp__form { display: grid; gap: .9rem; }
+.dp__form .campo__fila { align-items: flex-start; }
+.dp__form > .adm-btn { justify-self: stretch; }
+.dp__nota { min-height: 7rem; }
+
+/* Historial */
+.dp__historial { display: grid; gap: .5rem; padding: 0; list-style: none; }
+.dp__historial li {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: .1rem 1rem;
+  padding-left: .85rem;
+  border-left: 3px solid var(--negro);
+}
+.dp__historial-estado { font-weight: 700; }
+.dp__historial-fecha { color: var(--suave); font-weight: 600; font-variant-numeric: tabular-nums; }
+
+.dp__vivo:empty { display: none; }
+
+/* Desde 900px: comprador, entrega, seguimiento y nota a la izquierda;
+   productos, pago, estado e historial a la derecha */
+@media (min-width: 900px) {
+  .dp__columnas { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 1.25rem; align-items: start; }
+  .dp__columna { display: grid; gap: 1.25rem; }
+  .dp__fecha { flex-basis: auto; }
+  .dp__form > .adm-btn,
+  .copiar > .adm-btn { justify-self: start; }
+}

@@ -1,0 +1,117 @@
+.lpd { display: grid; gap: 1rem; }
+
+.lpd__buscar .campo__input { border-color: var(--negro); }
+
+/* Chips: en el celular, una fila que se desliza */
+.lpd__chips {
+  display: flex;
+  gap: .5rem;
+  overflow-x: auto;
+  margin-inline: -1rem;
+  padding: 4px 1rem; /* lugar para el contorno de foco */
+  scrollbar-width: none;
+}
+.lpd__chips::-webkit-scrollbar { display: none; }
+
+.lpd__chip {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: .45rem;
+  min-height: 44px;
+  padding: .4rem .95rem;
+  border: 2px solid var(--negro);
+  border-radius: 999px;
+  background: var(--blanco);
+  color: var(--negro);
+  font-size: 1rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.lpd__chip:hover { background: rgba(0, 0, 0, .06); }
+.lpd__chip[aria-pressed="true"] { background: var(--negro); color: var(--blanco); font-weight: 800; }
+.lpd__chip[aria-pressed="true"]:focus-visible { outline-color: var(--negro); }
+
+.lpd__conteo {
+  min-width: 1.5rem;
+  padding: .05rem .4rem;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, .08);
+  font-size: .85rem;
+  font-weight: 800;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+.lpd__chip[aria-pressed="true"] .lpd__conteo { background: var(--amarillo); color: var(--negro); }
+
+.lpd__resultados { display: grid; gap: 1rem; }
+.lpd__resultados--cargando { opacity: .55; }
+
+.lpd__vacio {
+  padding: 1.5rem;
+  border: 2px dashed var(--suave);
+  border-radius: var(--radio);
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.lpd__lista { display: grid; gap: .75rem; padding: 0; list-style: none; }
+
+/* Cada pedido es una tarjeta: toda tocable */
+.lpd__tarjeta {
+  position: relative;
+  display: grid;
+  gap: .3rem;
+  padding: .85rem 1rem 1rem;
+  border: 2px solid var(--negro);
+  border-radius: 16px;
+  background: var(--blanco);
+}
+.lpd__tarjeta:hover { background: rgba(0, 0, 0, .025); }
+.lpd__tarjeta--pagado { box-shadow: inset 6px 0 0 var(--amarillo); }
+.lpd__tarjeta--cancelado,
+.lpd__tarjeta--rechazado { border-color: rgba(0, 0, 0, .3); }
+
+.lpd__arriba { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; }
+
+.lpd__numero {
+  color: var(--negro);
+  font-weight: 800;
+  font-size: 1.6rem;
+  line-height: 1.1;
+  letter-spacing: -.01em;
+  text-decoration: none;
+  font-variant-numeric: tabular-nums;
+}
+.lpd__numero::after { content: ""; position: absolute; inset: 0; border-radius: 14px; }
+.lpd__numero:hover { text-decoration: underline; text-underline-offset: 4px; }
+.lpd__numero:focus-visible { outline: none; }
+.lpd__numero:focus-visible::after { outline: 3px solid var(--negro); outline-offset: 3px; }
+
+.lpd__fecha { color: var(--suave); font-weight: 600; white-space: nowrap; font-variant-numeric: tabular-nums; }
+
+.lpd__nombre { font-weight: 700; font-size: 1.1rem; overflow-wrap: anywhere; }
+
+.lpd__datos { display: flex; flex-wrap: wrap; gap: .1rem .9rem; color: var(--suave); font-weight: 600; }
+.lpd__total { color: var(--negro); font-weight: 800; font-variant-numeric: tabular-nums; }
+
+.lpd__rotulos { display: flex; flex-wrap: wrap; align-items: center; gap: .35rem; margin-top: .3rem; }
+
+.lpd__paginas {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: .5rem;
+}
+.lpd__pagina { color: var(--suave); font-weight: 600; }
+
+@media (min-width: 600px) {
+  .lpd__chips { flex-wrap: wrap; overflow: visible; margin-inline: 0; padding-inline: 0; }
+}
+
+/* Desde 900px: dos tarjetas por fila */
+@media (min-width: 900px) {
+  .lpd__buscar { max-width: 32rem; }
+  .lpd__lista { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
