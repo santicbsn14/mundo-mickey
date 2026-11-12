@@ -18,6 +18,8 @@ const eventoWebhookSchema = new mongoose.Schema(
     /** Header `x-request-id`. */
     requestId: String,
     firmaValida: Boolean,
+    /** Header `x-signature` (`ts=…,v1=…`), solo si la firma no coincidió: es un HMAC, no la clave, y sirve para ver con qué clave se firmó. */
+    firma: String,
     /** `type` o `topic` de la notificación (`payment`, `merchant_order`…). */
     tipo: String,
     pagoId: String,

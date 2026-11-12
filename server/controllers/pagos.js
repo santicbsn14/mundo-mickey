@@ -122,7 +122,7 @@ export async function webhook(req, res) {
 
   evento.firmaValida = firmaValida({ xSignature: req.get('x-signature'), xRequestId: evento.requestId, dataId, secreto })
   if (!evento.firmaValida) {
-    await registrarEvento({ ...evento, resultado: 'firma_invalida', detalle: req.get('x-signature') ? 'La firma no coincide' : 'Sin x-signature' }, inicio)
+    await registrarEvento({ ...evento, firma: texto(req.get('x-signature'))?.slice(0, 200), resultado: 'firma_invalida', detalle: req.get('x-signature') ? 'La firma no coincide' : 'Sin x-signature' }, inicio)
     return res.status(401).json({ error: 'Firma inválida.' })
   }
 
