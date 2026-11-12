@@ -63,9 +63,15 @@ export async function diagnosticoMp() {
     const yo = await r.json()
     const tags = Array.isArray(yo.tags) ? yo.tags : []
     const usuarioDePrueba = tags.includes('test_user') || /^TESTUSER/i.test(yo.nickname ?? '') || yo.test_user === true
+    let site
+    try {
+      site = JSON.stringify(sitio())
+    } catch {
+      site = 'sin configurar'
+    }
     console.log(
       `Health: Mercado Pago ok. Token ${prefijoToken(token)}…; usuario ${usuarioDePrueba ? 'DE PRUEBA' : 'real'}` +
-        ` (site ${yo.site_id ?? '?'}, tags: ${tags.join(', ') || 'ninguno'})`,
+        ` (site ${yo.site_id ?? '?'}, tags: ${tags.join(', ') || 'ninguno'}). SITE_URL: ${site}`,
     )
     return { mp: 'ok' }
   } catch (err) {
@@ -87,9 +93,16 @@ export function fechaMp(fecha) {
   return local.toISOString().replace('Z', '-03:00')
 }
 
-/** `SITE_URL` sin la `/` del final. */
-function sitio() {
-  return requerirEnv('SITE_URL').replace(/\/+$/, '')
+/**
+ * `SITE_URL` sin espacios, sin comillas alrededor (pegadas por error en el panel de Vercel) y sin la `/` del final.
+ * Si no es https, la preferencia sale sin `notification_url` ni `back_urls` útiles: Mercado Pago no avisa ni vuelve.
+ */
+export function sitio() {
+  return requerirEnv('SITE_URL')
+    .trim()
+    .replace(/^["']+|["']+$/g, '')
+    .trim()
+    .replace(/\/+$/, '')
 }
 
 /** Imagen del ítem en el checkout de Mercado Pago: la portada a 400px, en JPEG. */
@@ -152,6 +165,9 @@ function rechazoAutoReturn(err) {
  */
 export async function crearPreferencia(pedido) {
   const cliente = clientePreferencias()
+  if (process.env.VERCEL && !sitio().startsWith('https://')) {
+    console.error(`Checkout: SITE_URL no empieza con https:// (${JSON.stringify(sitio())}): la preferencia sale sin webhook ni vuelta al sitio.`)
+  }
   let respuesta
   try {
     respuesta = await cliente.create({ body: cuerpoPreferencia(pedido) })
