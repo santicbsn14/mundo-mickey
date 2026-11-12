@@ -41,26 +41,39 @@ Si la contraseña tiene caracteres como `@`, `:` o `/`, codificalos (por ejemplo
 
 ## 2. Vercel
 
-1. [vercel.com/new](https://vercel.com/new) → importá el repo.
+> **Hoy hay un deploy de prueba** en `https://mundo-mickey.vercel.app` (brief 11): usa la base **`mundo-mickey-dev`**, las **credenciales de prueba** de Mercado Pago y las credenciales de admin de desarrollo. Sirve para probar pagos de punta a punta. El paso a producción (base `mundo-mickey`, credenciales de producción, admin nuevo, dominio) es el brief 12: en la tabla, la columna "Producción".
+
+Lo que se hizo para el deploy de prueba:
+
+1. [vercel.com/new](https://vercel.com/new) → **Import** del repo de GitHub `santicbsn14/mundo-mickey`, rama `main`.
 2. Configuración del proyecto:
    - **Root Directory:** la raíz del repo (donde está `package.json`).
    - **Framework Preset:** Vite (lo detecta solo). Build `npm run build`, output `dist`: no hace falta tocar nada.
-3. **Environment Variables** — cargá cada una marcando **Production** y **Preview**:
-   | Variable | Valor |
-   |---|---|
-   | `MONGODB_URI` | la URI `mongodb+srv://` con la base **`mundo-mickey`** (paso 1). No la de desarrollo (`mundo-mickey-dev`) |
-   | `SITE_URL` | la URL pública del sitio, sin `/` al final: el **dominio final** (brief 12), o mientras tanto la del proyecto (`https://mundo-mickey.vercel.app`). Arma las `back_urls` y la `notification_url` de Mercado Pago, que solo se manda si empieza con `https://` |
-   | `MP_ACCESS_TOKEN` | el Access Token **de producción de la cuenta real de Mercado Pago del dueño** (Tus integraciones → la aplicación → Credenciales de producción). No el de la cuenta de prueba que se usa en local. Es secreto: nunca con `VITE_` |
-   | `MP_WEBHOOK_SECRET` | la **clave secreta de los webhooks en modo productivo** (ver "Webhooks en producción" en "Probar pagos en la PC"). No la de modo prueba que se usa en local. Sin ella, el webhook responde 500 y Mercado Pago reintenta |
-   | `VITE_SANITY_PROJECT_ID` | `de0zicdv` |
-   | `VITE_SANITY_DATASET` | `production` |
-   | `SANITY_PROJECT_ID` | `de0zicdv` |
-   | `SANITY_DATASET` | `production` |
-   | `SANITY_WRITE_TOKEN` | el mismo valor de tu `.env` local (token Editor `mundo-mickey-api`) |
-   | `ADMIN_USER` | el usuario del panel (por ejemplo `admin`) |
-   | `ADMIN_PASSWORD_HASH` | el hash de la contraseña de **producción**, que elegís vos: corré `npm run admin:hash`, escribila dos veces y pegá el hash que imprime, tal cual y sin comillas. **No uses la contraseña de desarrollo** del `.env` local |
-   | `JWT_SECRET` | uno **nuevo**, distinto del de desarrollo: `node -e "console.log(require('crypto').randomBytes(48).toString('base64url'))"`. Si lo cambiás, todas las sesiones abiertas se cierran |
-4. **Deploy.** Si cambiás variables después, hacé **Redeploy**: no se aplican a deploys anteriores.
+3. **Environment Variables:** se pegaron todas (el `.env` se puede pegar entero en el primer campo y Vercel lo separa), marcando **Production** y **Preview**. **Sin comillas ni espacios:** Vercel guarda el valor tal cual.
+4. **Deploy.** Con la URL ya conocida, se cargó `SITE_URL=https://mundo-mickey.vercel.app` y se hizo **Redeploy**: las variables no se aplican a deploys anteriores.
+5. **CORS de Sanity:** se sumó el origen del deploy (ver la sección Sanity):
+   ```bash
+   npx sanity@latest cors add https://mundo-mickey.vercel.app --no-credentials --project-id de0zicdv
+   ```
+6. **Atlas:** Network Access con `0.0.0.0/0` (paso 1).
+7. Verificar (paso 3): `/api/health` con `mp: "ok"` y `mpWebhook: "configurado"`.
+
+**Variables:**
+
+| Variable | Deploy de prueba (hoy) | Producción (brief 12) |
+|---|---|---|
+| `MONGODB_URI` | la URI `mongodb+srv://` con la base **`mundo-mickey-dev`** | la misma con la base **`mundo-mickey`** (paso 1) |
+| `SITE_URL` | `https://mundo-mickey.vercel.app` | el **dominio final**. En los dos casos: con `https://`, sin `/` al final. Arma las `back_urls` y la `notification_url` de Mercado Pago; **si no empieza con `https://`, la preferencia sale sin webhook ni vuelta al sitio** (la API saca espacios y comillas, pero no agrega el `https://`) |
+| `MP_ACCESS_TOKEN` | el Access Token de las **credenciales de prueba** de la aplicación "Mundo Mickey" (empieza con `APP_USR-`) | el de las **credenciales de producción** de la misma aplicación. Es secreto: nunca con `VITE_` |
+| `MP_WEBHOOK_SECRET` | la **clave secreta de Webhooks en modo prueba** | la de **modo productivo**. Sin ella, el webhook responde 500 y Mercado Pago reintenta; con una clave equivocada, 401 (`firma_invalida`) |
+| `VITE_SANITY_PROJECT_ID` / `SANITY_PROJECT_ID` | `de0zicdv` | igual |
+| `VITE_SANITY_DATASET` / `SANITY_DATASET` | `production` | igual |
+| `SANITY_WRITE_TOKEN` | el mismo valor del `.env` local (token Editor `mundo-mickey-api`) | igual |
+| `ADMIN_USER` | el de desarrollo | el usuario del panel (por ejemplo `admin`) |
+| `ADMIN_PASSWORD_HASH` | el de desarrollo | el hash de la contraseña de **producción**, que elegís vos: `npm run admin:hash`, escribila dos veces y pegá el hash tal cual, sin comillas. **No la contraseña de desarrollo** |
+| `JWT_SECRET` | el de desarrollo | uno **nuevo**: `node -e "console.log(require('crypto').randomBytes(48).toString('base64url'))"`. Si lo cambiás, se cierran todas las sesiones |
+
+Si cambiás variables después, hacé **Redeploy**: no se aplican a deploys anteriores.
 
 > **Plan:** Hobby es solo para uso personal y **no comercial**. Para probar alcanza, pero para la tienda en vivo corresponde **Pro**.
 
@@ -68,7 +81,7 @@ Si la contraseña tiene caracteres como `@`, `:` o `/`, codificalos (por ejemplo
 
 - **Proyecto:** "Mundo Mickey", Project ID **`de0zicdv`**, en la organización `santicbsn14`. Panel: https://www.sanity.io/manage/project/de0zicdv
 - **Dataset `production` público:** el front lo lee sin token, por el CDN. No se usa Sanity Studio: todo se carga desde `/admin`.
-- **CORS:** solo `http://localhost:5173` y `http://localhost:5174`, sin credentials. El `http://localhost:3333` que Sanity crea por defecto (el de Studio) se borró en el brief 02b.
+- **CORS:** `http://localhost:5173`, `http://localhost:5174` y el deploy de prueba `https://mundo-mickey.vercel.app` (brief 11), sin credentials. El `http://localhost:3333` que Sanity crea por defecto (el de Studio) se borró en el brief 02b.
 - **Token:** `mundo-mickey-api`, rol Editor. Va solo en `SANITY_WRITE_TOKEN` (`.env` y Vercel). Si se filtra, revocalo en el panel (API → Tokens) y creá otro.
 - **Brief 12 — dominio de producción:** hay que sumarlo a los CORS (sin credentials, porque el front solo lee). Desde la raíz del repo:
   ```bash
@@ -81,8 +94,11 @@ Si la contraseña tiene caracteres como `@`, `:` o `/`, codificalos (por ejemplo
 
 1. Abrí `https://<proyecto>.vercel.app/api/health`. Tiene que responder:
    ```json
-   { "ok": true, "db": "conectada", "sanity": "ok", "entorno": "production" }
+   { "ok": true, "db": "conectada", "sanity": "ok", "mp": "ok", "mpWebhook": "configurado", "entorno": "production" }
    ```
+   - `mp`: `"ok"` si el token anda (consulta `GET /users/me` de Mercado Pago, con 3 s de límite), `"error"` con el motivo en `errores.mp` (sin el token), o `"sin_configurar"`. No cambia `ok` ni el código de respuesta.
+   - `mpWebhook`: `"configurado"`, `"sin_configurar"` o `"invalido"` (la clave tiene caracteres que una clave real no tiene: por ejemplo, se copió tapada con "•").
+   - En el **log** de la función (no en la respuesta) queda el prefijo del token, si la cuenta es de prueba (`usuario DE PRUEBA`, por el tag `test_user` de `users/me`) y el `SITE_URL` exacto.
 2. Abrí `https://<proyecto>.vercel.app/checkout` y **recargá la página** (F5). Tiene que seguir mostrando "Finalizar compra" (o "Tu carrito está vacío"): eso confirma que el rewrite a `/index.html` funciona.
 3. Abrí `https://<proyecto>.vercel.app/admin` y fijate que se vea la barra negra del panel.
 
@@ -97,7 +113,12 @@ Si la contraseña tiene caracteres como `@`, `:` o `/`, codificalos (por ejemplo
 | `"sanity": "error"` | El motivo está en `errores.sanity`. Revisá `SANITY_PROJECT_ID` y `SANITY_DATASET` en Vercel. |
 | El front no carga productos (error de CORS en la consola) | Falta el dominio en los CORS de Sanity (ver la sección Sanity). |
 | Una ruta del front da 404 al recargar | El rewrite `/(.*)` → `/index.html` en `vercel.json`. |
-| Logs | Vercel → proyecto → **Logs**. En Hobby duran 1 hora. |
+| `"mp": "error"` | El motivo en `errores.mp`: con 401, el `MP_ACCESS_TOKEN` está mal copiado o se regeneró; con "no respondió a tiempo", Mercado Pago tardó más de 3 s (probá de nuevo). |
+| `"mpWebhook": "invalido"` | La clave se copió **tapada** (los "•" del panel). En Mercado Pago, Webhooks → la pestaña del modo → mostrá la clave (el ojo) y copiala. Pegala en Vercel y hacé Redeploy. |
+| La preferencia sale sin `back_urls` ni `notification_url`; Mercado Pago no vuelve a la tienda | `SITE_URL` no empieza con `https://` en ese entorno (o no se hizo Redeploy). Se ve en el log de `/api/health` (`SITE_URL: "…"`) y, en el checkout, como error en el log. |
+| Mercado Pago dice "Una de las partes con la que intentás hacer el pago es de prueba" | Se está pagando con una cuenta **real** (logueado, o con un email de una cuenta real) a un vendedor de prueba. Pagá en una ventana de incógnito, **sin iniciar sesión** y con un email inventado (ver "Probar pagos"). |
+| Todos los eventos son `firma_invalida` | `MP_WEBHOOK_SECRET` no es la clave del modo que corresponde (prueba en el deploy de prueba, productivo en producción), o se copió tapada. Los eventos con firma inválida guardan el `x-signature` recibido (un HMAC, no la clave) para comparar. Mientras tanto, los pagos se confirman igual por la reconciliación de `/pago/exito`. |
+| Logs | Vercel → proyecto → **Logs** (o Deployments → el deploy → **Logs**). En Hobby duran 1 hora; para el webhook, mirá la colección `eventowebhooks`. |
 
 ## Probar en el celular
 
@@ -118,20 +139,47 @@ Para ver la tienda o el panel de desarrollo en un celular real (deslizar la gale
    npx sanity@latest cors delete http://192.168.x.x:5173 --project-id de0zicdv
    npx sanity@latest cors list --project-id de0zicdv
    ```
-   Tienen que quedar solo `http://localhost:5173` y `http://localhost:5174`.
+   Tienen que quedar `http://localhost:5173`, `http://localhost:5174` y `https://mundo-mickey.vercel.app`.
 
 ## Pedidos de prueba
 
 `npm run pedidos:prueba` crea 10 pedidos inventados (todos los estados, con los productos del catálogo y sin tocar el stock) para probar el panel; `npm run pedidos:prueba -- --borrar` borra todos los pedidos y el contador. **Solo corre si la base de `MONGODB_URI` termina en `-dev`.**
 
-## Probar pagos en la PC
+## Mercado Pago (panel nuevo)
 
-Mercado Pago no llega a `localhost`: para que mande el webhook y vuelva a `/pago/exito` hace falta una URL **https** pública que apunte a la PC. Se usa un **Cloudflare Quick Tunnel** (gratis, sin cuenta).
+La integración es **Checkout Pro** en la **cuenta real del dueño (Camilo)**. El panel nuevo de Mercado Pago **ya no obliga a usar cuentas de prueba vendedor/comprador**: la aplicación tiene sus propias credenciales de prueba.
+
+1. [mercadopago.com.ar/developers](https://www.mercadopago.com.ar/developers) → **Tus integraciones** → **Crear aplicación**: nombre **"Mundo Mickey"**, producto **Checkout Pro**.
+2. En la aplicación → **Credenciales de prueba** → **Activar credenciales**. El **Access Token** (empieza con `APP_USR-`, igual que el de producción) va en `MP_ACCESS_TOKEN`. Por detrás, Mercado Pago le asigna a la aplicación un **usuario vendedor de prueba**: `GET /users/me` con ese token devuelve el tag `test_user`, y el log de `/api/health` dice `usuario DE PRUEBA`. Por eso **el prefijo no alcanza para saber si un token es de prueba**.
+3. **Webhooks** → **Configurar notificaciones** → pestaña **Modo prueba**: URL `https://mundo-mickey.vercel.app/api/pagos/webhook`, evento **Pagos**, guardar. Mostrá la **clave secreta** con el ojo (no la copies tapada: copia los "•") y pegala en `MP_WEBHOOK_SECRET` (Vercel + Redeploy, y el `.env` local).
+4. **Producción (brief 12):** "Credenciales de producción" de la misma aplicación y la pestaña **Modo productivo** de Webhooks con el dominio final; su clave va en `MP_WEBHOOK_SECRET` de producción.
+
+Notas:
+- Además de la URL del panel, cada preferencia lleva su propia `notification_url` (con `?source_news=webhooks`). Con las dos apuntando al mismo lugar, **Mercado Pago manda dos notificaciones por pago** (`payment.created`, con distinto `x-request-id`); la segunda no hace nada.
+- Los pagos con las credenciales de prueba llegan con `live_mode: true`: no es una señal de pago real.
+- **Alternativa (si la aplicación no tiene credenciales de prueba):** las cuentas de prueba de "Tus integraciones" → **Cuentas de prueba**: el Access Token de producción de la **vendedor** en `MP_ACCESS_TOKEN`, y se paga logueado con la **comprador**.
+
+## Probar pagos en el deploy de Vercel (recomendado)
+
+Con el deploy de prueba (base `mundo-mickey-dev`, credenciales de prueba) no hace falta túnel: Mercado Pago llega al webhook y vuelve al sitio.
+
+1. Fijate que `/api/health` diga `mp: "ok"` y `mpWebhook: "configurado"`.
+2. Abrí una **ventana de incógnito nueva**, **sin sesión de Mercado Pago**. Si pagás logueado con tu cuenta real, Mercado Pago lo rechaza ("Una de las partes con la que intentás hacer el pago es de prueba"). No hace falta cuenta comprador de prueba.
+3. Comprá en `https://mundo-mickey.vercel.app` con un **email inventado** (por ejemplo `test_user_mm1@testuser.com`), no el tuyo.
+4. En Mercado Pago, pagá **como invitado** con una tarjeta de prueba (abajo); el resultado lo decide el **nombre del titular**.
+5. **Revisá:** el pedido en `mundo-mickey-dev` (`estado`, `mp`, `stockDescontado`, `notaInterna`), el stock en Sanity y `eventowebhooks` (cada notificación con su `resultado`, `firmaValida` y `duracionMs`).
+6. **Al terminar:** `npm run pedidos:prueba -- --borrar` (pedidos y contador), vaciá `eventowebhooks` y `npm run seed` (stock).
+
+Un pago rechazado y el reintento: con `OTHE` vuelve a `/pago/error` con el carrito; "Volver a intentar" arma **un pedido nuevo**, y el rechazado queda en "Pendientes de pago" (su preferencia vence a las 24 h).
+
+## Probar pagos en la PC (alternativa, con túnel)
+
+Mercado Pago no llega a `localhost`: para que mande el webhook y vuelva a `/pago/exito` hace falta una URL **https** pública que apunte a la PC. Se usa un **Cloudflare Quick Tunnel** (gratis, sin cuenta). Con `SITE_URL=http://localhost:…`, Mercado Pago rechaza `auto_return` y descarta las `back_urls`: la API crea la preferencia sin ellas (sirve solo para ver la preferencia).
 
 ### Una sola vez
 
-1. **`cloudflared`:** el ejecutable portable para Windows, **sin instalador**, de los releases oficiales de Cloudflare: [cloudflared-windows-amd64.exe](https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-windows-amd64.exe). Guardalo como `C:UsersAdminProyectosMundo Mickeyherramientascloudflared.exe` (fuera del repo: **no se commitea**).
-2. **Cuentas de prueba:** en [mercadopago.com.ar/developers](https://www.mercadopago.com.ar/developers) → **Tus integraciones** → la aplicación → **Cuentas de prueba**, tienen que estar la **vendedor** (su Access Token de producción va en `MP_ACCESS_TOKEN` del `.env`) y la **comprador** (con ella se paga). Anotá usuario y contraseña de la comprador: se usan para entrar al checkout.
+1. **`cloudflared`:** el ejecutable portable para Windows, **sin instalador**, de los releases oficiales de Cloudflare: [cloudflared-windows-amd64.exe](https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-windows-amd64.exe). Guardalo como `Mundo Mickey/herramientas/cloudflared.exe` (fuera del repo: **no se commitea**).
+2. **Credenciales:** las de prueba de la aplicación en el `.env` (ver "Mercado Pago (panel nuevo)").
 
 ### Cada vez que probás
 
@@ -152,7 +200,7 @@ Mercado Pago no llega a `localhost`: para que mande el webhook y vuelva a `/pago
    - evento: **Pagos**;
    - guardá y copiá la **clave secreta** a `.env` como `MP_WEBHOOK_SECRET=…` (sin comillas) y reiniciá la API. Si la clave cambia (o la regenerás), actualizala en el `.env`.
    - Si usás "Simular notificación" con un id de pago que no existe, la API lo registra como `ignorado` y responde 200.
-6. **Comprá desde la URL del túnel** (no desde `localhost`): el carrito y los datos del checkout se guardan por origen, y Mercado Pago vuelve al túnel. Pagá logueado con la **cuenta de prueba comprador** y una tarjeta de prueba (abajo).
+6. **Comprá desde la URL del túnel** (no desde `localhost`): el carrito y los datos del checkout se guardan por origen, y Mercado Pago vuelve al túnel. Pagá en incógnito, sin sesión de Mercado Pago, como invitado y con una tarjeta de prueba (abajo).
 7. **Revisá:** el pedido en `mundo-mickey-dev` (`estado`, `mp`, `stockDescontado`, `notaInterna`), el stock en Sanity y la colección `eventowebhooks` (cada notificación con su `resultado`).
 
 ### Al terminar
@@ -163,7 +211,7 @@ Mercado Pago no llega a `localhost`: para que mande el webhook y vuelva a `/pago
    npx sanity@latest cors delete https://xxxx-xxxx.trycloudflare.com --project-id de0zicdv
    npx sanity@latest cors list --project-id de0zicdv
    ```
-   Tienen que quedar solo `http://localhost:5173` y `http://localhost:5174`.
+   Tienen que quedar `http://localhost:5173`, `http://localhost:5174` y `https://mundo-mickey.vercel.app`.
 3. Cortá el túnel (Ctrl+C). Borrá los pedidos, los `eventowebhooks` y el contador (`counters`, `_id: "pedido"`) de `mundo-mickey-dev`, y dejá el stock como el seed (`npm run seed`).
 
 ### Tarjetas de prueba (Argentina)
@@ -189,7 +237,7 @@ Tabla vigente de la [documentación de Mercado Pago Argentina](https://www.merca
 | Rechazado por fecha de vencimiento | `EXPI` | — |
 | Rechazado por error de formulario | `FORM` | — |
 
-Para probar un rechazo y después el pago: pagá con `OTHE`, y en la misma pantalla de Mercado Pago reintentá con `APRO` (o volvé desde `/pago/error` con "Volver a intentar", que arma un pedido nuevo).
+Para probar un rechazo y después el pago: pagá con `OTHE`, y en la misma pantalla de Mercado Pago reintentá con `APRO` (o volvé desde `/pago/error` con "Volver a intentar", que arma un pedido nuevo). Verificado en el brief 11.
 
 ### Si el túnel no levanta
 

@@ -54,7 +54,7 @@ El cliente elige y paga online con Mercado Pago. Después hay tres formas de ent
   - El front lee directo del dataset público.
   - Todas las escrituras pasan por la API, con el token de escritura.
 - **MongoDB Atlas (M0):** pedidos, contador de número de pedido y log de webhooks. Cluster `mundo-mickey` en el Atlas del dueño, en **AWS N. Virginia (us-east-1)**, la misma región por defecto de las funciones de Vercel. Base `mundo-mickey-dev` en local y `mundo-mickey` en producción.
-- **Mercado Pago:** Checkout Pro vía Preferences API, con el SDK `mercadopago` para Node.
+- **Mercado Pago:** Checkout Pro vía Preferences API, con el SDK `mercadopago` para Node. Aplicación "Mundo Mickey" en la cuenta real del dueño; para probar se usan las **credenciales de prueba de la aplicación** (panel nuevo, sin cuentas de prueba vendedor/comprador). Hay un **deploy de prueba** en `https://mundo-mickey.vercel.app` con la base `mundo-mickey-dev` y esas credenciales (ver `DEPLOY.md`).
 - **Local:** `npm run dev` levanta Vite en el puerto 5173 y la API en el 4000. Vite hace proxy de `/api` al 4000, así el front siempre llama a `/api/...` tanto en local como en producción.
 
 ## Modelos de datos
@@ -118,7 +118,7 @@ Guarda cada notificación de MP recibida y el resultado de procesarla. Sirve par
    - vence a las 24 horas y excluye los pagos en efectivo (ver "Decisiones tomadas").
    - Si algún producto no existe, está oculto o no tiene stock suficiente, responde **409** con el detalle por ítem y **no crea nada**. El front ajusta el carrito y marca los ítems.
    - Si falla Mercado Pago al crear la preferencia, el pedido pasa a `cancelado` (con el motivo en `mp.detalle`), responde **502** y el número de pedido queda salteado.
-3. La API devuelve `init_point` y el front redirige. **El carrito no se vacía al redirigir:** se vacía recién cuando `/pago/exito` confirma que el pedido está pagado.
+3. La API devuelve `init_point` y el front redirige. **Siempre `init_point`, también con credenciales de prueba:** con las de prueba de la aplicación, el `init_point` (`www.mercadopago.com.ar`) acepta las tarjetas de prueba pagando como invitado, así que `sandbox_init_point` no se usa (verificado en el brief 11). **El carrito no se vacía al redirigir:** se vacía recién cuando `/pago/exito` confirma que el pedido está pagado.
 4. MP avisa por `POST /api/pagos/webhook`. La API (`procesarPago` en `server/lib/pagos.js`):
    - valida la firma `x-signature` (sin firma válida, 401 sin consultar nada);
    - consulta el pago y busca el pedido por su `external_reference`;
@@ -141,7 +141,7 @@ Guarda cada notificación de MP recibida y el resultado de procesarla. Sirve par
 **Públicos**
 | Método | Ruta | Uso |
 |---|---|---|
-| GET | `/api/health` | estado de la API y de la DB |
+| GET | `/api/health` | estado de la API, de la DB y de Sanity; además `mp` (`ok` / `error` / `sin_configurar`, consultando `GET /users/me` con 3 s de límite; el motivo en `errores.mp`, sin el token) y `mpWebhook` (`configurado` / `sin_configurar` / `invalido`). Mercado Pago no cambia `ok` ni el código. En el log (no en la respuesta): prefijo del token, si la cuenta es de prueba y el `SITE_URL` |
 | POST | `/api/pagos/checkout` | crea el pedido y la preferencia |
 | POST | `/api/pagos/webhook` | notificaciones de MP |
 | GET | `/api/pedidos/:id/estado` | estado público mínimo (número, estado y tipo de entrega), sin datos personales ni montos; 404 con id inválido o inexistente; 30 por IP por minuto. **Reconciliación:** con `?pago=<payment_id>` (lo agrega Mercado Pago a las `back_urls`), si el pedido sigue en `pendiente_pago` y ese pago es de este pedido (`external_reference`), lo procesa igual que el webhook antes de responder |
@@ -256,6 +256,9 @@ Cada componente lleva su CSS al lado: `Header.tsx` con `Header.css`.
 - **Contacto con el comprador desde el panel con links `wa.me` y `mailto`**, sin integración de mensajería.
 - **Checkout Pro vía Preferences:** tiene SDK completo en Node y mucha más documentación que la vía Orders.
 - **El webhook es la única fuente de verdad del pago.** Las `back_urls` solo muestran un mensaje.
+- **Se usa `init_point` también en pruebas, no `sandbox_init_point`:** con las credenciales de prueba de la aplicación, el checkout normal acepta las tarjetas de prueba (como invitado, sin sesión de Mercado Pago). Pagar logueado con una cuenta real a un vendedor de prueba falla ("Una de las partes… es de prueba"). Para distinguir un token de prueba no sirve el prefijo (los dos empiezan con `APP_USR-`): `users/me` devuelve el tag `test_user`.
+- **Dos notificaciones por pago:** la `notification_url` de la preferencia y la URL configurada en el panel de Webhooks apuntan al mismo endpoint, así que Mercado Pago avisa dos veces (`payment.created`, con distinto `x-request-id`). Es inofensivo: el procesamiento es idempotente. Se deja la `notification_url` porque no depende de la configuración del panel.
+- **Un reintento después de un rechazo es un pedido nuevo:** "Volver a intentar" pasa otra vez por el checkout; el pedido rechazado queda en `pendiente_pago` (con `mp.estadoPago: rejected`) y su preferencia vence a las 24 h.
 - **Desde el panel nunca se marca un pedido como pagado: solo Mercado Pago.** El panel puede corregir entre "a preparar", enviado y entregado (un pedido ya cobrado), pero un pedido pendiente no pasa a pagado a mano.
 - **Cancelar no devuelve el dinero; la devolución se hace desde Mercado Pago.** Al cancelar un pedido pagado, el panel ofrece devolver los productos al stock.
 - **La preferencia vence a las 24 horas** (`expires` y `expiration_date_to`): un link de pago abandonado no sirve para pagar días después, cuando el precio o el stock pueden haber cambiado.
@@ -276,7 +279,7 @@ Cada componente lleva su CSS al lado: `Header.tsx` con `Header.css`.
 - **Envío nacional:** confirmar que se coordina aparte y con qué correo trabaja. Si prefiere cobrarlo en la web, hay que definir tarifas por zona.
 - Costo del envío en San Nicolás.
 - Datos del local: dirección, horarios, WhatsApp e Instagram.
-- Cuenta de Mercado Pago del amigo, con la aplicación creada y las credenciales de prueba y de producción.
+- Mercado Pago: la aplicación "Mundo Mickey" ya está creada en la cuenta del dueño, con las credenciales de prueba activas y el webhook en modo prueba. Falta la **clave secreta real** del webhook de modo prueba (se cargó la tapada) y, para el brief 12, las credenciales de producción y el webhook en modo productivo.
 - Fotos reales de los 6 o 7 productos, con precio y stock (las puede cargar él desde el panel).
 - Dominio, y la decisión sobre el nombre de la marca en lo digital.
 - Usuario y contraseña del admin.
