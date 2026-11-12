@@ -155,7 +155,8 @@ La integración es **Checkout Pro** en la **cuenta real del dueño (Camilo)**. E
 4. **Producción (brief 12):** "Credenciales de producción" de la misma aplicación y la pestaña **Modo productivo** de Webhooks con el dominio final; su clave va en `MP_WEBHOOK_SECRET` de producción.
 
 Notas:
-- Además de la URL del panel, cada preferencia lleva su propia `notification_url` (con `?source_news=webhooks`). Con las dos apuntando al mismo lugar, **Mercado Pago manda dos notificaciones por pago** (`payment.created`, con distinto `x-request-id`); la segunda no hace nada.
+- Además de la URL del panel, cada preferencia lleva su propia `notification_url` (con `?source_news=webhooks`). Con el webhook respondiendo 200 llega **una** notificación por pago; si responde 401 o 500, Mercado Pago reintenta enseguida y después durante horas (las repetidas no hacen nada).
+- Con las credenciales de prueba, Mercado Pago firma con la clave de **Modo prueba** (verificado en el brief 12).
 - Los pagos con las credenciales de prueba llegan con `live_mode: true`: no es una señal de pago real.
 - **Alternativa (si la aplicación no tiene credenciales de prueba):** las cuentas de prueba de "Tus integraciones" → **Cuentas de prueba**: el Access Token de producción de la **vendedor** en `MP_ACCESS_TOKEN`, y se paga logueado con la **comprador**.
 
