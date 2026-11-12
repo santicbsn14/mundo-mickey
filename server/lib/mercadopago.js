@@ -33,6 +33,48 @@ export function reemplazarConsultaPago(fn) {
   consultaPago = fn
 }
 
+/** `TEST-`, `APP_USR-` u `otro`: solo el prefijo del token, nunca el resto. */
+export function prefijoToken(token = process.env.MP_ACCESS_TOKEN) {
+  const t = token?.trim() ?? ''
+  if (t.startsWith('TEST-')) return 'TEST-'
+  if (t.startsWith('APP_USR-')) return 'APP_USR-'
+  return 'otro'
+}
+
+/**
+ * Para `/api/health`: consulta `GET /users/me` con el token (timeout de 3 s).
+ * Devuelve `{ mp: 'ok' | 'error' | 'sin_configurar', error? }`, sin el token en ningún lado.
+ * En el log del server (no en la respuesta) deja el prefijo del token y si la cuenta es de prueba.
+ */
+export async function diagnosticoMp() {
+  const token = process.env.MP_ACCESS_TOKEN?.trim()
+  if (!token) return { mp: 'sin_configurar' }
+  try {
+    const r = await fetch('https://api.mercadopago.com/users/me', {
+      headers: { Authorization: `Bearer ${token}` },
+      signal: AbortSignal.timeout(3000),
+    })
+    if (!r.ok) {
+      const cuerpo = await r.json().catch(() => ({}))
+      const motivo = `Mercado Pago respondió ${r.status}${cuerpo?.message ? `: ${cuerpo.message}` : ''}`
+      console.error(`Health: ${motivo} (token ${prefijoToken(token)}…)`)
+      return { mp: 'error', error: motivo.replaceAll(token, '<token>') }
+    }
+    const yo = await r.json()
+    const tags = Array.isArray(yo.tags) ? yo.tags : []
+    const usuarioDePrueba = tags.includes('test_user') || /^TESTUSER/i.test(yo.nickname ?? '') || yo.test_user === true
+    console.log(
+      `Health: Mercado Pago ok. Token ${prefijoToken(token)}…; usuario ${usuarioDePrueba ? 'DE PRUEBA' : 'real'}` +
+        ` (site ${yo.site_id ?? '?'}, tags: ${tags.join(', ') || 'ninguno'})`,
+    )
+    return { mp: 'ok' }
+  } catch (err) {
+    const motivo = err?.name === 'TimeoutError' ? 'Mercado Pago no respondió a tiempo' : `No se pudo consultar Mercado Pago: ${err?.message ?? err}`
+    console.error(`Health: ${motivo}`)
+    return { mp: 'error', error: motivo.replaceAll(token, '<token>') }
+  }
+}
+
 /** Un link de pago abandonado no sirve para pagar días después. */
 const VENCIMIENTO_HORAS = 24
 

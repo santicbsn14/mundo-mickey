@@ -1,5 +1,6 @@
 import { Router } from 'express'
 import { conectarDB, estadoDB } from '../config/db.js'
+import { diagnosticoMp } from '../lib/mercadopago.js'
 import { sanityLectura } from '../lib/sanity.js'
 
 const router = Router()
@@ -15,27 +16,38 @@ async function chequearSanity() {
 }
 
 router.get('/health', async (req, res) => {
-  // Sanity se consulta en paralelo con la conexión a Mongo
+  // Sanity y Mercado Pago se consultan en paralelo con la conexión a Mongo
   const sanity = chequearSanity()
-  const extraSanity = (s) => ({
-    sanity: s.sanity,
-    ...(s.error && { errores: { sanity: s.error } }),
-  })
+  const mercadoPago = diagnosticoMp()
+  const mpWebhook = process.env.MP_WEBHOOK_SECRET?.trim() ? 'configurado' : 'sin_configurar'
+
+  const extras = async () => {
+    const [s, mp] = await Promise.all([sanity, mercadoPago])
+    const errores = { ...(s.error && { sanity: s.error }), ...(mp.error && { mp: mp.error }) }
+    return {
+      sanity: s.sanity,
+      mp: mp.mp,
+      mpWebhook,
+      ...(Object.keys(errores).length && { errores }),
+      _sanityOk: s.sanity === 'ok',
+    }
+  }
 
   try {
     await conectarDB()
   } catch (err) {
     console.error('Health: no se pudo conectar a MongoDB:', err.message)
-    const s = await sanity
-    return res.status(500).json({ ok: false, db: 'desconectada', error: err.message, ...extraSanity(s) })
+    const { _sanityOk, ...e } = await extras()
+    return res.status(500).json({ ok: false, db: 'desconectada', error: err.message, ...e })
   }
 
-  // Mongo bien: si falla Sanity igual responde 200, con ok: false y el motivo
-  const s = await sanity
+  // Mongo bien: si falla Sanity igual responde 200, con ok: false y el motivo.
+  // Mercado Pago no cambia `ok` ni el código: se informa aparte en `mp`
+  const { _sanityOk, ...e } = await extras()
   res.json({
-    ok: s.sanity === 'ok',
+    ok: _sanityOk,
     db: estadoDB(),
-    ...extraSanity(s),
+    ...e,
     entorno: process.env.VERCEL_ENV ?? 'local',
   })
 })
