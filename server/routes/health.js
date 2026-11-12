@@ -19,7 +19,9 @@ router.get('/health', async (req, res) => {
   // Sanity y Mercado Pago se consultan en paralelo con la conexión a Mongo
   const sanity = chequearSanity()
   const mercadoPago = diagnosticoMp()
-  const mpWebhook = process.env.MP_WEBHOOK_SECRET?.trim() ? 'configurado' : 'sin_configurar'
+  // `invalido`: tiene caracteres que no puede tener una clave real (por ejemplo los "•" de la clave tapada del panel)
+  const secreto = process.env.MP_WEBHOOK_SECRET?.trim()
+  const mpWebhook = !secreto ? 'sin_configurar' : /^[\x21-\x7e]+$/.test(secreto) ? 'configurado' : 'invalido'
 
   const extras = async () => {
     const [s, mp] = await Promise.all([sanity, mercadoPago])
